@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Myanmar AI Audio Studio</title>
+    <!-- လှပတဲ့ UI အတွက် Bootstrap CSS ချိတ်ဆက်ခြင်း -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; font-family: sans-serif; padding: 20px; }
+        .card { max-width: 500px; margin: 0 auto; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <!-- ၁။ LOGIN BOX (PASSWORD ခံသည့်နေရာ) -->
+    <div id="loginSection" class="card p-4 mt-5">
+        <h4 class="text-center mb-4">🔒 Myanmar Audio Studio Login</h4>
+        <div class="mb-3">
+            <label class="form-label">Password ရိုက်ထည့်ပါ</label>
+            <input type="password" id="passwordInput" class="form-control" placeholder="Password ဖြည့်ပါ...">
+        </div>
+        <button onclick="checkPassword()" class="btn btn-warning w-100 fw-bold text-white">လော့ဂ်အင် ဝင်မည် (Login)</button>
+        <p id="loginError" class="text-danger mt-2 text-center hidden">Password မှားနေပါသည်။</p>
+    </div>
+
+    <!-- ၂။ MAIN STUDIO BOX (အသံပြောင်းသည့်နေရာ - ပထမတော့ ဝှက်ထားမည်) -->
+    <div id="studioSection" class="card p-4 mt-5 hidden">
+        <h3 class="text-center text-success mb-4">🎙 Myanmar Audio Studio</h3>
+        
+        <div class="mb-3">
+            <label class="form-label">ဇာတ်ကောင် / အသံ ရွေးချယ်ရန်</label>
+            <select id="voiceSelect" class="form-select">
+                <option value="my">မြန်မာအမျိုးသမီးအသံ (Standard)</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">စာသား</label>
+            <textarea id="textInput" class="form-control" rows="4" placeholder="ကျား: မင်္ဂလာပါ။ မ: ဟုတ်ကဲ့။"></textarea>
+        </div>
+
+        <button onclick="generateAudio()" class="btn btn-primary w-100 fw-bold">🎙 အသံဖိုင် ဖန်တီးမည် (Generate)</button>
+        
+        <div class="mt-4 text-center">
+            <audio id="audioPlayer" controls class="w-100 hidden"></audio>
+        </div>
+    </div>
+
+    <!-- ၃။ လုပ်ဆောင်ချက်များအတွက် JAVASCRIPT CODE -->
+    <script>
+        // သတ်မှတ်ထားသော Password (စိတ်ကြိုက် ပြောင်းနိုင်သည်)
+        const CORRECT_PASSWORD = "111222"; 
+
+        // Password စစ်ဆေးသည့် လုပ်ဆောင်ချက်
+        function checkPassword() {
+            const userInput = document.getElementById("passwordInput").value;
+            if(userInput === CORRECT_PASSWORD) {
+                document.getElementById("loginSection").classList.add("hidden");
+                document.getElementById("studioSection").classList.remove("hidden");
+            } else {
+                document.getElementById("loginError").classList.remove("hidden");
+            }
+        }
+
+        // စာသားကို AI အသံပြောင်းပေးသည့် လုပ်ဆောင်ချက် (Google TTS API အား သုံးထားသည်)
+        function generateAudio() {
+            const text = document.getElementById("textInput").value;
+            if(!text) {
+                alert("ကျေးဇူးပြု၍ စာသားတစ်ခုခု ရိုက်ထည့်ပါ!");
+                return;
+            }
+
+            // Google TTS API Link ချိတ်ဆက်ခြင်း
+            const googleTtsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=my&client=tw-ob&q=${encodeURIComponent(text)}`;
+            
+            const player = document.getElementById("audioPlayer");
+            player.src = googleTtsUrl;
+            player.classList.remove("hidden");
+            player.play(); // အသံချက်ချင်း ဖွင့်မည်
+        }
+    </script>
+</body>
+</html>
