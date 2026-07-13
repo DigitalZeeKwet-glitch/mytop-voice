@@ -76,10 +76,13 @@
         <button onclick="generateTikTokAudio()" id="genBtn" class="btn btn-orange w-100 fw-bold py-2">🚀 အသံဖိုင် ဖန်တီးမည် (Generate)</button>
         
         <!-- Audio Player & Download Link -->
-        <div class="mt-4 text-center">
-            <audio id="audioPlayer" controls class="w-100 hidden mb-2"></audio>
-            <a id="downloadBtn" class="btn btn-success btn-sm w-100 fw-bold hidden" download>📥 အသံဖိုင်ကို ဒေါင်းလုဒ်ဆွဲရန်</a>
+        <div id="resultSection" class="mt-4 text-center hidden">
+            <audio id="audioPlayer" controls class="w-100 mb-2"></audio>
+            <a id="downloadBtn" class="btn btn-success btn-sm w-100 fw-bold" download>
+                📥 အသံဖိုင်ကို ဒေါင်းလုဒ်ဆွဲရန်
+            </a>
         </div>
+
     </div>
 
     <!-- Bootstrap JS -->
