@@ -32,7 +32,7 @@
 
     <!-- ၂။ MAIN STUDIO BOX -->
     <div id="studioSection" class="card p-4 mt-4 hidden">
-        <h3 class="text-center text-success mb-3">🎙 Myanmar Audio Studio 2</h3>
+        <h3 class="text-center text-success fw-bold mb-3">🎙 Myanmar Audio Studio 2</h3>
         <div class="alert alert-info text-center py-1 small" id="vipStatus"></div>
         
         <!-- သိမ်းဆည်းမည့် ဖိုင်အမည် -->
@@ -44,7 +44,7 @@
         <div class="mb-3">
             <label class="form-label small fw-bold">🎙 ဇာတ်ကောင် / အသံ ရွေးချယ်ရန်</label>
             <select id="voiceSelect" class="form-select form-select-sm">
-                <option value="my">မြန်မာအသံ (🇲🇲 - Google Standard)</option>
+                <option value="Zawgyi">မြန်မာအသံ (🇲🇲 - Premium Voice)</option>
             </select>
         </div>
 
@@ -68,14 +68,14 @@
             <h5>🎧 ဖန်တီးပြီးသော အသံဖိုင်</h5>
             <audio id="audioPlayer" controls class="w-100 my-2"></audio>
             <br>
-            <a id="downloadBtn" class="btn btn-success mt-2 w-100 fw-bold" download>
+            <a id="downloadBtn" class="btn btn-success mt-2 w-100 fw-bold" target="_blank" download>
                 📥 အသံဖိုင်ကို ဒေါင်းလုဒ်ဆွဲမည်
             </a>
         </div>
     </div>
 
     <script>
-        // Password Control
+        // Password Control 
         const vipUsers = {
             "000123": "2026-12-15"
         };
@@ -105,26 +105,8 @@
             }
         }
 
-        // စာသားရှည်လျှင် အပိုင်းဖြတ်ပေးမည့် Function
-        function splitText(text, maxLength = 100) {
-            const chunks = [];
-            let currentChunk = "";
-            const sentences = text.match(/[^။၊\n]+[။၊\n]?/g) || [text];
-
-            for (const sentence of sentences) {
-                if ((currentChunk + sentence).length > maxLength) {
-                    if (currentChunk) chunks.push(currentChunk.trim());
-                    currentChunk = sentence;
-                } else {
-                    currentChunk += sentence;
-                }
-            }
-            if (currentChunk) chunks.push(currentChunk.trim());
-            return chunks;
-        }
-
-        // အသံဖန်တီးခြင်း လုပ်ဆောင်ချက်
-                       function generateAudio() {
+        // StreamElements API ဖြင့် အသံပြောင်းလဲခြင်း
+        function generateAudio() {
             const text = document.getElementById("textInput").value.trim();
             const fileName = document.getElementById("fileNameInput").value.trim() || "Myanmar_Voice";
             const genBtn = document.getElementById("genBtn");
@@ -138,17 +120,12 @@
             genBtn.disabled = true;
 
             try {
-                // StreamElements Voice API ကို သုံးပြီး မြန်မာအသံ ပြောင်းလဲခြင်း
                 const voiceUrl = `https://api.streamelements.com/kappa/v2/speech?voice=Zawgyi&text=${encodeURIComponent(text)}`;
                 
-                // Audio Player ထဲသို့ လင့်ခ်ထည့်ပြီး ဖွင့်ခြင်း
                 player.src = voiceUrl;
-                
-                // ဒေါင်းလုဒ်ခလုတ် ချိတ်ဆက်ခြင်း
                 downloadBtn.href = voiceUrl;
                 downloadBtn.download = `${fileName}.mp3`;
                 
-                // ရလဒ်ပြသမည့် အကွက်ကြီးကို ဖွင့်ပေးခြင်း
                 if(resultSection) resultSection.classList.remove("hidden");
                 if(player) player.classList.remove("hidden");
                 if(downloadBtn) downloadBtn.classList.remove("hidden");
@@ -166,4 +143,3 @@
     </script>
 </body>
 </html>
- 
