@@ -3,82 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Myanmar AI Audio Studio</title>
-    <!-- လှပတဲ့ UI အတွက် Bootstrap CSS ချိတ်ဆက်ခြင်း -->
+    <title>Myanmar AI Audio Studio - TikTok TTS</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body { background-color: #f8f9fa; font-family: sans-serif; padding: 20px; }
-        .card { max-width: 500px; margin: 0 auto; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .card { max-width: 500px; margin: 0 auto; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 12px; }
+        .vip-box { background-color: #0d2354; color: white; border-radius: 10px; padding: 20px; }
         .hidden { display: none; }
+        .btn-orange { background-color: #ff6600; color: white; }
+        .btn-orange:hover { background-color: #e65c00; color: white; }
     </style>
 </head>
 <body>
 
-    <!-- ၁။ LOGIN BOX (PASSWORD ခံသည့်နေရာ) -->
-    <div id="loginSection" class="card p-4 mt-5">
-        <h4 class="text-center mb-4">🔒 Myanmar Audio Studio Login</h4>
+    <!-- ၁။ LOGIN BOX -->
+    <div id="loginSection" class="card p-4 mt-4">
+        <div class="vip-box text-center mb-4">
+            <h5>VIP Password (သို့) အကောင့်အသစ် ဝယ်ယူလိုပါက</h5>
+            <a href="https://t.me/Mrkhant98" class="text-warning fw-bold d-block my-2" target="_blank">@Mrkhant98</a>
+            <small class="text-white-50">သို့ Telegram မှ တိုက်ရိုက် ဆက်သွယ်နိုင်ပါသည်။</small>
+        </div>
+
         <div class="mb-3">
-            <label class="form-label">Password ရိုက်ထည့်ပါ</label>
+            <label class="form-label fw-bold">🔑 Password ရိုက်ထည့်ပါ</label>
             <input type="password" id="passwordInput" class="form-control" placeholder="Password ဖြည့်ပါ...">
         </div>
-        <button onclick="checkPassword()" class="btn btn-warning w-100 fw-bold text-white">လော့ဂ်အင် ဝင်မည် (Login)</button>
-        <p id="loginError" class="text-danger mt-2 text-center hidden">Password မှားနေပါသည်။</p>
+        <button onclick="checkVIPPassword()" class="btn btn-warning w-100 fw-bold text-white py-2">🚀 လော့ဂ်အင် ဝင်မည် (Login)</button>
+        <p id="loginError" class="text-danger mt-2 text-center hidden"></p>
     </div>
 
-    <!-- ၂။ MAIN STUDIO BOX (အသံပြောင်းသည့်နေရာ - ပထမတော့ ဝှက်ထားမည်) -->
-    <div id="studioSection" class="card p-4 mt-5 hidden">
-        <h3 class="text-center text-success mb-4">🎙 Myanmar Audio Studio</h3>
+    <!-- ၂။ MAIN STUDIO BOX -->
+    <div id="studioSection" class="card p-4 mt-4 hidden">
+        <h3 class="text-center text-success fw-bold mb-3">🎙 Myanmar TikTok TTS Studio</h3>
+        <div class="alert alert-info text-center py-1 small" id="vipStatus"></div>
         
+        <!-- သမ်းဆည်းမည့် ဖိုင်အမည် -->
         <div class="mb-3">
-            <label class="form-label">ဇာတ်ကောင် / အသံ ရွေးချယ်ရန်</label>
-            <select id="voiceSelect" class="form-select">
-                <option value="my">မြန်မာအမျိုးသမီးအသံ (Standard)</option>
+            <label class="form-label small fw-bold">💾 သိမ်းဆည်းမည့် ဖိုင်အမည်</label>
+            <input type="text" id="fileNameInput" class="form-control form-control-sm" value="Myanmar_TikTok_Voice">
+        </div>
+
+        <!-- ဇာတ်ကောင် ရွေးချယ်ရန် (TikTok Myanmar Voices) -->
+        <div class="mb-3">
+            <label class="form-label small fw-bold">🗣 ဇာတ်ကောင် / အသံ ရွေးချယ်ရန်</label>
+            <select id="voiceSelect" class="form-select form-select-sm">
+                <option value="my_male_cody">သီဟ (🇲🇲 - TikTok အမျိုးသား ပုံမှန်)</option>
+                <option value="my_female_mhea">မြတ်နိုး (🇲🇲 - TikTok အမျိုးသမီး ပုံမှန်)</option>
+                <option value="my_male_narration">အင်းဝ (🇲🇲 - TikTok ဇာတ်ကြောင်းပြော)</option>
             </select>
         </div>
 
+        <!-- စာတန်းထိုး အမျိုးအစား -->
         <div class="mb-3">
-            <label class="form-label">စာသား</label>
-            <textarea id="textInput" class="form-control" rows="4" placeholder="ကျား: မင်္ဂလာပါ။ မ: ဟုတ်ကဲ့။"></textarea>
+            <label class="form-label small fw-bold d-block">စာတန်းထိုး အမျိုးအစား</label>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="platform" id="tiktokRadio" value="tiktok" checked>
+                <label class="form-check-label small" for="tiktokRadio">TikTok</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="platform" id="youtubeRadio" value="youtube">
+                <label class="form-check-label small" for="youtubeRadio">YouTube</label>
+            </div>
         </div>
 
-        <button onclick="generateAudio()" class="btn btn-primary w-100 fw-bold">🎙 အသံဖိုင် ဖန်တီးမည် (Generate)</button>
+        <!-- စာသားရိုက်ရန်နေရာ -->
+        <div class="mb-3">
+            <label class="form-label small fw-bold">စာသား</label>
+            <textarea id="textInput" class="form-control" rows="4" placeholder="ဤနေရာတွင် မြန်မာလို စာသားရိုက်ပါ..."></textarea>
+        </div>
+
+        <!-- Generate Button -->
+        <button onclick="generateTikTokAudio()" id="genBtn" class="btn btn-orange w-100 fw-bold py-2">🚀 အသံဖိုင် ဖန်တီးမည် (Generate)</button>
         
+        <!-- Audio Player & Download Link -->
         <div class="mt-4 text-center">
-            <audio id="audioPlayer" controls class="w-100 hidden"></audio>
+            <audio id="audioPlayer" controls class="w-100 hidden mb-2"></audio>
+            <a id="downloadBtn" class="btn btn-success btn-sm w-100 fw-bold hidden" download>📥 အသံဖိုင်ကို ဒေါင်းလုဒ်ဆွဲရန်</a>
         </div>
     </div>
 
-    <!-- ၃။ လုပ်ဆောင်ချက်များအတွက် JAVASCRIPT CODE -->
-    <script>
-        // သတ်မှတ်ထားသော Password (စိတ်ကြိုက် ပြောင်းနိုင်သည်)
-        const CORRECT_PASSWORD = "111222"; 
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-        // Password စစ်ဆေးသည့် လုပ်ဆောင်ချက်
-        function checkPassword() {
-            const userInput = document.getElementById("passwordInput").value;
-            if(userInput === CORRECT_PASSWORD) {
-                document.getElementById("loginSection").classList.add("hidden");
-                document.getElementById("studioSection").classList.remove("hidden");
+    <script>
+        // VIP Users Data
+        const vipUsers = {
+            "111222": "2026-10-15",
+            "": "--"
+        };
+
+        function checkVIPPassword() {
+            const userInput = document.getElementById("passwordInput").value.trim();
+            const errorText = document.getElementById("loginError");
+            
+            if (vipUsers.hasOwnProperty(userInput)) {
+                const expiryDateStr = vipUsers[userInput];
+                const expiryDate = new Date(expiryDateStr);
+                const today = new Date();
+                today.setHours(0,0,0,0);
+                expiryDate.setHours(0,0,0,0);
+
+                if (today <= expiryDate) {
+                    document.getElementById("loginSection").classList.add("hidden");
+                    document.getElementById("studioSection").classList.remove("hidden");
+                    document.getElementById("vipStatus").innerText = `👑 VIP အကောင့် - သက်တမ်းကုန်မည့်ရက်: ${expiryDateStr}`;
+                } else {
+                    errorText.innerText = `❌ ဒီ Password က ${expiryDateStr} နေ့မှာ သက်တမ်းကုန်သွားပါပြီ။`;
+                    errorText.classList.remove("hidden");
+                }
             } else {
-                document.getElementById("loginError").classList.remove("hidden");
+                errorText.innerText = "❌ Password မှားနေပါသည်။ အသစ်ဝယ်ယူရန် Telegram ကို ဆက်သွယ်ပါ။";
+                errorText.classList.remove("hidden");
             }
         }
 
-        // စာသားကို AI အသံပြောင်းပေးသည့် လုပ်ဆောင်ချက် (Google TTS API အား သုံးထားသည်)
-        function generateAudio() {
-            const text = document.getElementById("textInput").value;
-            if(!text) {
-                alert("ကျေးဇူးပြု၍ စာသားတစ်ခုခု ရိုက်ထည့်ပါ!");
-                return;
-            }
+        // TikTok TTS API သို့ လှမ်းချိတ်သည့် လုပ်ဆောင်ချက်
+        async function generateTikTokAudio() {
+            const text = document.getElementById("textInput").value.trim();
+            const voice = document.getElementById("voiceSelect").value;
+            const fileName = document.getElementById("fileNameInput").value.trim() || "Myanmar_TTS";
+            const genBtn = document.getElementById("genBtn");
 
-            // Google TTS API Link ချိတ်ဆက်ခြင်း
-            const googleTtsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=my&client=tw-ob&q=${encodeURIComponent(text)}`;
-            
-            const player = document.getElementById("audioPlayer");
-            player.src = googleTtsUrl;
-            player.classList.remove("hidden");
-            player.play(); // အသံချက်ချင်း ဖွင့်မည်
+            if (!text) { alert("ကျေးဇူးပြု၍ စာသားရိုက်ထည့်ပါ!"); return; }
+
+            genBtn.innerText = "⏳ အသံဖန်တီးနေသည်...";
+            genBtn.disabled = true;
+
+            try {
+                // အများသုံး အခမဲ့ပေးထားသော TikTok TTS API Endpoint သို့ လှမ်းခေါ်ခြင်း
+                const response = await fetch("https://tiktok-tts.weilbyte.dev/api/generate", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ text: text, voice: voice })
+                });
+
+                if (!response.ok) { throw new Error("API မှာ အမှားအယွင်းရှိနေပါသည်။"); }
+
+                const data = await response.json();
+                
+                if (data.success && data.audio) {
+                    // Base64 အသံဖိုင်ဒေတာကို Audio Player တွင် ထည့်သွင်းခြင်း
+                    const audioSrc = `data:audio/mp3;base64,${data.audio}`;
+                    const player = document.getElementById("audioPlayer");
+                    const downloadBtn = document.getElementById("downloadBtn");
+
+                    player.src = audioSrc;
+                    player.classList.remove("hidden");
+                    player.play();
+
+                    // ဒေါင်းလုဒ်ခလုတ် ပြင်ဆင်ခြင်း
+                    downloadBtn.href = audioSrc;
+                    downloadBtn.download = `${fileName}.mp3`;
+                    downloadBtn.classList.remove("hidden");
+                } else {
+                    alert("အသံမပြောင်းနိုင်ပါ။ စာသား တိုတိုဖြင့် ပြန်စမ်းကြည့်ပါ။");
+                }
+            } catch (error) {
+                console.error(error);
+                alert("TikTok API ချိတ်ဆက်မှု အဆင်မပြေပါ။ ခဏကြာမှ ပြန်စမ်းကြည့်ပါ။");
+            } finally {
+                genBtn.innerText = "🚀 အသံဖိုင် ဖန်တီးမည် (Generate)";
+                genBtn.disabled = false;
+            }
         }
     </script>
 </body>
