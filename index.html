@@ -7,14 +7,14 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body { background-color: #f8f9fa; font-family: sans-serif; padding: 20px; }
-        .card { max-width: 500px; margin: 0 auto; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .vip-box { background-color: #0d2354; color: white; border-radius: 10px; padding: 20px; text-center }
+        .card { max-width: 500px; margin: 0 auto; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 12px; }
+        .vip-box { background-color: #0d2354; color: white; border-radius: 10px; padding: 20px; }
         .hidden { display: none; }
     </style>
 </head>
 <body>
 
-    <!-- ၁။ LOGIN BOX (PASSWORD နှင့် TELEGRAM LINK ပြသည့်နေရာ) -->
+    <!-- ၁။ LOGIN BOX -->
     <div id="loginSection" class="card p-4 mt-4">
         <div class="vip-box text-center mb-4">
             <h5>VIP Password (သို့) အကောင့်အသစ် ဝယ်ယူလိုပါက</h5>
@@ -30,21 +30,26 @@
         <p id="loginError" class="text-danger mt-2 text-center hidden"></p>
     </div>
 
-    <!-- ၂။ MAIN STUDIO BOX (အသံပြောင်းသည့်နေရာ) -->
+    <!-- ၂။ MAIN STUDIO BOX -->
     <div id="studioSection" class="card p-4 mt-4 hidden">
         <h3 class="text-center text-success mb-3">🎙 Myanmar Audio Studio 2</h3>
-        <div class="alert alert-info text-center py-1" id="vipStatus"></div>
+        <div class="alert alert-info text-center py-1 small" id="vipStatus"></div>
         
+        <!-- သိမ်းဆည်းမည့် ဖိုင်အမည် -->
         <div class="mb-3">
-            <label class="form-label">🎙 ဇာတ်ကောင် / အသံ ရွေးချယ်ရန်</label>
-            <select id="voiceSelect" class="form-select">
-                <option value="my">သီဟ (🇲🇲 - အမျိုးသား ပုံမှန်)</option>
-                <option value="my_female">မြတ်နိုး (🇲🇲 - အမျိုးသမီး ပုံမှန်)</option>
+            <label class="form-label small fw-bold">💾 သိမ်းဆည်းမည့် ဖိုင်အမည်</label>
+            <input type="text" id="fileNameInput" class="form-control form-control-sm" value="Myanmar_Audio_Voice">
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label small fw-bold">🎙 ဇာတ်ကောင် / အသံ ရွေးချယ်ရန်</label>
+            <select id="voiceSelect" class="form-select form-select-sm">
+                <option value="my">မြန်မာအသံ (🇲🇲 - Google Standard)</option>
             </select>
         </div>
 
         <div class="mb-3">
-            <label class="form-label">စာတန်းထိုး အမျိုးအစား</label>
+            <label class="form-label small fw-bold">စာတန်းထိုး အမျိုးအစား</label>
             <div>
                 <input type="radio" name="platform" id="tiktok" checked> TikTok &nbsp;&nbsp;
                 <input type="radio" name="platform" id="youtube"> YouTube
@@ -52,20 +57,25 @@
         </div>
 
         <div class="mb-3">
-            <label class="form-label">စာသား</label>
-            <textarea id="textInput" class="form-control" rows="4" placeholder="ကျား: မင်္ဂလာပါ။"></textarea>
+            <label class="form-label small fw-bold">စာသား</label>
+            <textarea id="textInput" class="form-control" rows="4" placeholder="ဤနေရာတွင် မြန်မာလို စာသားရိုက်ပါ..."></textarea>
         </div>
 
-        <button onclick="generateAudio()" class="btn btn-orange w-100 fw-bold btn-danger py-2">🚀 အသံဖိုင် ဖန်တီးမည် (Generate)</button>
+        <button onclick="generateAudio()" id="genBtn" class="btn btn-danger w-100 fw-bold py-2">🚀 အသံဖိုင် ဖန်တီးမည် (Generate)</button>
         
-        <div class="mt-4 text-center">
-            <audio id="audioPlayer" controls class="w-100 hidden"></audio>
+        <!-- Audio Player & Download Button -->
+        <div id="resultSection" class="mt-4 text-center hidden">
+            <h5>🎧 ဖန်တီးပြီးသော အသံဖိုင်</h5>
+            <audio id="audioPlayer" controls class="w-100 my-2"></audio>
+            <br>
+            <a id="downloadBtn" class="btn btn-success mt-2 w-100 fw-bold" download>
+                📥 အသံဖိုင်ကို ဒေါင်းလုဒ်ဆွဲမည်
+            </a>
         </div>
     </div>
 
-    <!-- ၃။ VIP PASSWORD & DATE CONTROL JAVASCRIPT -->
     <script>
-        // ဝယ်ယူထားသော User များ၏ Password နှင့် သက်တမ်းကုန်ဆုံးမည့်ရက် (နှစ်-လ-ရက်)
+        // Password Control
         const vipUsers = {
             "000123": "2026-12-15"
         };
@@ -74,42 +84,98 @@
             const userInput = document.getElementById("passwordInput").value.trim();
             const errorText = document.getElementById("loginError");
             
-            // Password ရှိမရှိ စစ်ဆေးခြင်း
             if (vipUsers.hasOwnProperty(userInput)) {
                 const expiryDateStr = vipUsers[userInput];
                 const expiryDate = new Date(expiryDateStr);
                 const today = new Date();
-
-                // အချိန်ဇုန်များကြောင့် နေ့ရက်ကိုပဲ နှိုင်းယှဉ်ရန် Time တန်ဖိုးများကို သုညလုပ်ခြင်း
                 today.setHours(0,0,0,0);
                 expiryDate.setHours(0,0,0,0);
 
-                // ရက်စွဲ သက်တမ်းကုန်မကုန် စစ်ဆေးခြင်း
                 if (today <= expiryDate) {
-                    // အောင်မြင်ပါက Studio အကွက်ကို ပြပါ
                     document.getElementById("loginSection").classList.add("hidden");
                     document.getElementById("studioSection").classList.remove("hidden");
                     document.getElementById("vipStatus").innerText = `👑 VIP အကောင့် - သက်တမ်းကုန်မည့်ရက်: ${expiryDateStr}`;
                 } else {
-                    // သက်တမ်းကုန်သွားပါက
                     errorText.innerText = `❌ ဒီ Password က ${expiryDateStr} နေ့မှာ သက်တမ်းကုန်သွားပါပြီ။`;
                     errorText.classList.remove("hidden");
                 }
             } else {
-                // Password မှားပါက
                 errorText.innerText = "❌ Password မှားနေပါသည်။ အသစ်ဝယ်ယူရန် Telegram ကို ဆက်သွယ်ပါ။";
                 errorText.classList.remove("hidden");
             }
         }
 
-        function generateAudio() {
-            const text = document.getElementById("textInput").value;
-            if(!text) { alert("စာသားရိုက်ပါ!"); return; }
-            const googleTtsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=my&client=tw-ob&q=${encodeURIComponent(text)}`;
+        // စာသားရှည်လျှင် အပိုင်းဖြတ်ပေးမည့် Function
+        function splitText(text, maxLength = 100) {
+            const chunks = [];
+            let currentChunk = "";
+            const sentences = text.match(/[^။၊\n]+[။၊\n]?/g) || [text];
+
+            for (const sentence of sentences) {
+                if ((currentChunk + sentence).length > maxLength) {
+                    if (currentChunk) chunks.push(currentChunk.trim());
+                    currentChunk = sentence;
+                } else {
+                    currentChunk += sentence;
+                }
+            }
+            if (currentChunk) chunks.push(currentChunk.trim());
+            return chunks;
+        }
+
+        // အသံဖန်တီးခြင်း လုပ်ဆောင်ချက်
+        async function generateAudio() {
+            const text = document.getElementById("textInput").value.trim();
+            const fileName = document.getElementById("fileNameInput").value.trim() || "Myanmar_Voice";
+            const genBtn = document.getElementById("genBtn");
+            const resultSection = document.getElementById("resultSection");
             const player = document.getElementById("audioPlayer");
-            player.src = googleTtsUrl;
-            player.classList.remove("hidden");
-            player.play();
+            const downloadBtn = document.getElementById("downloadBtn");
+
+            if (!text) { alert("စာသားရိုက်ပါ!"); return; }
+
+            genBtn.innerText = "⏳ အသံဖန်တီးနေသည်...";
+            genBtn.disabled = true;
+
+            try {
+                // စာသားကို အပိုင်းခွဲခြင်း
+                const textChunks = splitText(text, 100);
+                const audioUrls = textChunks.map(chunk => 
+                    `https://translate.google.com/translate_tts?ie=UTF-8&tl=my&client=tw-ob&q=${encodeURIComponent(chunk)}`
+                );
+
+                if (audioUrls.length === 1) {
+                    // စာတိုလျှင် တိုက်ရိုက်ဖွင့်ပြီး ဒေါင်းလုဒ်လင့်ခ်ချိတ်မည်
+                    player.src = audioUrls[0];
+                    downloadBtn.href = audioUrls[0];
+                } else {
+                    // စာရှည်လျှင် အပိုင်းလိုက် ဆက်တိုက်ဖွင့်နိုင်ရန် ပထမတစ်ခုကို အရင်ထည့်မည်
+                    let currentTrack = 0;
+                    player.src = audioUrls[currentTrack];
+                    
+                    player.onended = function() {
+                        currentTrack++;
+                        if (currentTrack < audioUrls.length) {
+                            player.src = audioUrls[currentTrack];
+                            player.play();
+                        }
+                    };
+                    // ဒေါင်းလုဒ်ဆွဲရန် ပထမပိုင်းလင့်ခ်ကို ခေတ္တချိတ်ထားမည်
+                    downloadBtn.href = audioUrls[0];
+                }
+
+                // UI ပြသခြင်း
+                resultSection.classList.remove("hidden");
+                downloadBtn.download = `${fileName}.mp3`;
+                player.play();
+
+            } catch (error) {
+                console.error(error);
+                alert("အသံဖန်တီးမှု အဆင်မပြေပါ။ ခဏကြာမှ ပြန်စမ်းပါ။");
+            } finally {
+                genBtn.innerText = "🚀 အသံဖိုင် ဖန်တီးမည် (Generate)";
+                genBtn.disabled = false;
+            }
         }
     </script>
 </body>
