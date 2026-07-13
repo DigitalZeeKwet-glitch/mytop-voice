@@ -34,17 +34,11 @@
     <div id="studioSection" class="card p-4 mt-4 hidden">
         <h3 class="text-center text-success fw-bold mb-3">🎙 Myanmar Audio Studio 2</h3>
         <div class="alert alert-info text-center py-1 small" id="vipStatus"></div>
-        
-        <!-- သိမ်းဆည်းမည့် ဖိုင်အမည် -->
-        <div class="mb-3">
-            <label class="form-label small fw-bold">💾 သိမ်းဆည်းမည့် ဖိုင်အမည်</label>
-            <input type="text" id="fileNameInput" class="form-control form-control-sm" value="Myanmar_Audio_Voice">
-        </div>
 
         <div class="mb-3">
-            <label class="form-label small fw-bold">🎙 ဇာတ်ကောင် / အသံ ရွေးချယ်ရန်</label>
+            <label class="form-label small fw-bold">🗣 ဇာတ်ကောင် / အသံ ရွေးချယ်ရန်</label>
             <select id="voiceSelect" class="form-select form-select-sm">
-                <option value="my-MM">မြန်မာအသံ (🇲🇲 - Cloud Premium Voice)</option>
+                <option value="my-MM">မြန်မာအသံ (🇲🇲 - Premium Engine)</option>
             </select>
         </div>
 
@@ -63,14 +57,10 @@
 
         <button onclick="generateAudio()" id="genBtn" class="btn btn-danger w-100 fw-bold py-2">🚀 အသံဖိုင် ဖန်တီးမည် (Generate)</button>
         
-        <!-- Audio Player & Download Button -->
+        <!-- အသံစမ်းသပ်ရန်နှင့် လမ်းညွှန်ချက် ပြသမည့်နေရာ -->
         <div id="resultSection" class="mt-4 text-center hidden">
-            <h5>🎧 ဖန်တီးပြီးသော အသံဖိုင်</h5>
-            <audio id="audioPlayer" controls class="w-100 my-2"></audio>
-            <br>
-            <a id="downloadBtn" class="btn btn-success mt-2 w-100 fw-bold" target="_blank" download>
-                📥 အသံဖိုင်ကို ဒေါင်းလုဒ်ဆွဲမည်
-            </a>
+            <div class="alert alert-success fw-bold py-2">🎉 အသံဖတ်ခြင်း အောင်မြင်ပါသည်။</div>
+            <p class="text-muted small">သင့်ဖုန်း/စနစ်၏ မူရင်းအသံဖြင့် တိုက်ရိုက်အသံထွက် ဖွင့်ပြပေးနေပါသည်။</p>
         </div>
     </div>
 
@@ -105,40 +95,44 @@
             }
         }
 
-        // လုံးဝ အခမဲ့ စိတ်ချရသော Text-to-Speech API သို့ ပြောင်းလဲခြင်း
+        // Browser Native Speech Synthesis စနစ်သစ်
         function generateAudio() {
             const text = document.getElementById("textInput").value.trim();
-            const fileName = document.getElementById("fileNameInput").value.trim() || "Myanmar_Voice";
             const genBtn = document.getElementById("genBtn");
             const resultSection = document.getElementById("resultSection");
-            const player = document.getElementById("audioPlayer");
-            const downloadBtn = document.getElementById("downloadBtn");
 
             if(!text) { alert("ကျေးဇူးပြု၍ စာသားရိုက်ထည့်ပါ!"); return; }
 
-            genBtn.innerText = "⏳ အသံဖန်တီးနေသည်...";
-            genBtn.disabled = true;
+            if ('speechSynthesis' in window) {
+                // လက်ရှိအသံထွက်နေတာရှိရင် ရပ်ပစ်မည်
+                window.speechSynthesis.cancel();
 
-            try {
-                // တည်ငြိမ်ပြီး လုံးဝပိတ်မသွားမည့် ပုံစံအသစ်သို့ လဲလှယ်ခြင်း
-                const voiceUrl = `https://tts.cytron.biz/v1/submit?lang=my-MM&text=${encodeURIComponent(text)}`;
-                
-                player.src = voiceUrl;
-                downloadBtn.href = voiceUrl;
-                downloadBtn.download = `${fileName}.mp3`;
-                
+                genBtn.innerText = "⏳ အသံဖတ်နေသည်...";
+                genBtn.disabled = true;
+
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'my-MM'; // မြန်မာဘာသာစကား သတ်မှတ်ခြင်း
+
+                utterance.onend = function() {
+                    genBtn.innerText = "🚀 အသံဖိုင် ဖန်တီးမည် (Generate)";
+                    genBtn.disabled = false;
+                };
+
+                utterance.onerror = function(e) {
+                    console.error(e);
+                    alert("အသံထွက်ရန် စနစ်ပိုင်းဆိုင်ရာ အဆင်မပြေဖြစ်နေပါသည်။");
+                    genBtn.innerText = "🚀 အသံဖိုင် ဖန်တီးမည် (Generate)";
+                    genBtn.disabled = false;
+                };
+
+                // UI ပြသခြင်း
                 if(resultSection) resultSection.classList.remove("hidden");
-                if(player) player.classList.remove("hidden");
-                if(downloadBtn) downloadBtn.classList.remove("hidden");
                 
-                player.play();
+                // စတင်အသံထွက်စေခြင်း
+                window.speechSynthesis.speak(utterance);
 
-            } catch (error) {
-                console.error(error);
-                alert("အသံဖန်တီးမှု အဆင်မပြေပါ။ ခဏကြာမှ ပြန်စမ်းပါ။");
-            } finally {
-                genBtn.innerText = "🚀 အသံဖိုင် ဖန်တီးမည် (Generate)";
-                genBtn.disabled = false;
+            } else {
+                alert("သင့် Browser သည် ဤအသံထွက်စနစ်ကို အထောက်အပံ့မပေးပါ။ Chrome ကို သုံးပေးပါ။");
             }
         }
     </script>
