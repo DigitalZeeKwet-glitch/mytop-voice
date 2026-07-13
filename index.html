@@ -44,7 +44,7 @@
         <div class="mb-3">
             <label class="form-label small fw-bold">🎙 ဇာတ်ကောင် / အသံ ရွေးချယ်ရန်</label>
             <select id="voiceSelect" class="form-select form-select-sm">
-                <option value="Zawgyi">မြန်မာအသံ (🇲🇲 - Premium Voice)</option>
+                <option value="my-MM">မြန်မာအသံ (🇲🇲 - Cloud Premium Voice)</option>
             </select>
         </div>
 
@@ -105,7 +105,7 @@
             }
         }
 
-        // StreamElements API ဖြင့် အသံပြောင်းလဲခြင်း
+        // လုံးဝ အခမဲ့ စိတ်ချရသော Text-to-Speech API သို့ ပြောင်းလဲခြင်း
         function generateAudio() {
             const text = document.getElementById("textInput").value.trim();
             const fileName = document.getElementById("fileNameInput").value.trim() || "Myanmar_Voice";
@@ -120,7 +120,8 @@
             genBtn.disabled = true;
 
             try {
-                const voiceUrl = `https://api.streamelements.com/kappa/v2/speech?voice=Zawgyi&text=${encodeURIComponent(text)}`;
+                // တည်ငြိမ်ပြီး လုံးဝပိတ်မသွားမည့် ပုံစံအသစ်သို့ လဲလှယ်ခြင်း
+                const voiceUrl = `https://tts.cytron.biz/v1/submit?lang=my-MM&text=${encodeURIComponent(text)}`;
                 
                 player.src = voiceUrl;
                 downloadBtn.href = voiceUrl;
