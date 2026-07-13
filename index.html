@@ -37,7 +37,7 @@
         <h3 class="text-center text-success fw-bold mb-3">🎙 Myanmar TikTok TTS Studio</h3>
         <div class="alert alert-info text-center py-1 small" id="vipStatus"></div>
         
-        <!-- သမ်းဆည်းမည့် ဖိုင်အမည် -->
+        <!-- သိမ်းဆည်းမည့် ဖိုင်အမည် -->
         <div class="mb-3">
             <label class="form-label small fw-bold">💾 သိမ်းဆည်းမည့် ဖိုင်အမည်</label>
             <input type="text" id="fileNameInput" class="form-control form-control-sm" value="Myanmar_TikTok_Voice">
@@ -133,16 +133,14 @@
 
             try {
                 // အများသုံး အခမဲ့ပေးထားသော TikTok TTS API Endpoint သို့ လှမ်းခေါ်ခြင်း
-                        const response = await fetch("https://tiktok-tts.moeTTS.xyz/api/v1/tts", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
+                const response = await fetch("https://tiktok-tts.moeTTS.xyz/api/v1/tts", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
-            text: text,
-            voice: voice
-        })
-    });
-
-
+                        text: text,
+                        voice: voice
+                    })
+                });
 
                 if (!response.ok) { throw new Error("API မှာ အမှားအယွင်းရှိနေပါသည်။"); }
 
@@ -153,21 +151,23 @@
                     const audioSrc = `data:audio/mp3;base64,${data.audio}`;
                     const player = document.getElementById("audioPlayer");
                     const downloadBtn = document.getElementById("downloadBtn");
+                    const resultSection = document.getElementById("resultSection");
+
+                    // ရလဒ်ပြသမည့် အကွက်ကြီးကို ဖွင့်ပေးခြင်း
+                    resultSection.classList.remove("hidden");
 
                     player.src = audioSrc;
-                    player.classList.remove("hidden");
                     player.play();
 
                     // ဒေါင်းလုဒ်ခလုတ် ပြင်ဆင်ခြင်း
                     downloadBtn.href = audioSrc;
                     downloadBtn.download = `${fileName}.mp3`;
-                    downloadBtn.classList.remove("hidden");
                 } else {
                     alert("အသံမပြောင်းနိုင်ပါ။ စာသား တိုတိုဖြင့် ပြန်စမ်းကြည့်ပါ။");
                 }
             } catch (error) {
                 console.error(error);
-                alert("TikTok API ချိတ်ဆက်မှု အဆင်မပြေပါ။ ခဏကြာမှ ပြန်စမ်းကြည့်ပါ။");
+                alert("TikTok API ချิตဆက်မှု အဆင်မပြေပါ။ ခဏကြာမှ ပြန်စမ်းကြည့်ပါ။");
             } finally {
                 genBtn.innerText = "🚀 အသံဖိုင် ဖန်တီးမည် (Generate)";
                 genBtn.disabled = false;
