@@ -124,7 +124,7 @@
         }
 
         // အသံဖန်တီးခြင်း လုပ်ဆောင်ချက်
-        async function generateAudio() {
+                       function generateAudio() {
             const text = document.getElementById("textInput").value.trim();
             const fileName = document.getElementById("fileNameInput").value.trim() || "Myanmar_Voice";
             const genBtn = document.getElementById("genBtn");
@@ -132,41 +132,27 @@
             const player = document.getElementById("audioPlayer");
             const downloadBtn = document.getElementById("downloadBtn");
 
-            if (!text) { alert("စာသားရိုက်ပါ!"); return; }
+            if(!text) { alert("ကျေးဇူးပြု၍ စာသားရိုက်ထည့်ပါ!"); return; }
 
             genBtn.innerText = "⏳ အသံဖန်တီးနေသည်...";
             genBtn.disabled = true;
 
             try {
-                // စာသားကို အပိုင်းခွဲခြင်း
-                const textChunks = splitText(text, 100);
-                const audioUrls = textChunks.map(chunk => 
-                    `https://translate.google.com/translate_tts?ie=UTF-8&tl=my&client=tw-ob&q=${encodeURIComponent(chunk)}`
-                );
-
-                if (audioUrls.length === 1) {
-                    // စာတိုလျှင် တိုက်ရိုက်ဖွင့်ပြီး ဒေါင်းလုဒ်လင့်ခ်ချိတ်မည်
-                    player.src = audioUrls[0];
-                    downloadBtn.href = audioUrls[0];
-                } else {
-                    // စာရှည်လျှင် အပိုင်းလိုက် ဆက်တိုက်ဖွင့်နိုင်ရန် ပထမတစ်ခုကို အရင်ထည့်မည်
-                    let currentTrack = 0;
-                    player.src = audioUrls[currentTrack];
-                    
-                    player.onended = function() {
-                        currentTrack++;
-                        if (currentTrack < audioUrls.length) {
-                            player.src = audioUrls[currentTrack];
-                            player.play();
-                        }
-                    };
-                    // ဒေါင်းလုဒ်ဆွဲရန် ပထမပိုင်းလင့်ခ်ကို ခေတ္တချိတ်ထားမည်
-                    downloadBtn.href = audioUrls[0];
-                }
-
-                // UI ပြသခြင်း
-                resultSection.classList.remove("hidden");
+                // StreamElements Voice API ကို သုံးပြီး မြန်မာအသံ ပြောင်းလဲခြင်း
+                const voiceUrl = `https://api.streamelements.com/kappa/v2/speech?voice=Zawgyi&text=${encodeURIComponent(text)}`;
+                
+                // Audio Player ထဲသို့ လင့်ခ်ထည့်ပြီး ဖွင့်ခြင်း
+                player.src = voiceUrl;
+                
+                // ဒေါင်းလုဒ်ခလုတ် ချိတ်ဆက်ခြင်း
+                downloadBtn.href = voiceUrl;
                 downloadBtn.download = `${fileName}.mp3`;
+                
+                // ရလဒ်ပြသမည့် အကွက်ကြီးကို ဖွင့်ပေးခြင်း
+                if(resultSection) resultSection.classList.remove("hidden");
+                if(player) player.classList.remove("hidden");
+                if(downloadBtn) downloadBtn.classList.remove("hidden");
+                
                 player.play();
 
             } catch (error) {
@@ -180,3 +166,4 @@
     </script>
 </body>
 </html>
+ 
