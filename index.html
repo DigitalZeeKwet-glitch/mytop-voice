@@ -94,9 +94,11 @@
                 if (today <= expiryDate) {
                     document.getElementById("loginSection").classList.add("hidden");
                     document.getElementById("studioSection").classList.remove("hidden");
-                    document.getElementById("vipStatus").innerText = `👑 VIP အကောင့် - သက်တမ်းကုန်မည့်ရက်: ${expiryDateStr}`;
+                    document.getElementById("vipStatus").innerText =
+👑 VIP အကောင့် - သက်တမ်းကုန်မည့်ရက်: ${expiryDateStr};
                 } else {
-                    errorText.innerText = `❌ ဒီ Password က ${expiryDateStr} နေ့မှာ သက်တမ်းကုန်သွားပါပြီ။`;
+                  errorText.innerText =
+❌ ဒီ Password က ${expiryDateStr} နေ့မှာ သက်တမ်းကုန်သွားပါပြီ။;
                     errorText.classList.remove("hidden");
                 }
             } else {
@@ -142,8 +144,9 @@
                 const textChunks = splitText(text, 80);
                 
                 // CORS Block မဖြစ်စေရန် အဆင့်မြင့် Proxy ဖြင့် ချိတ်ဆက်ခြင်း
-                const audioUrls = textChunks.map(chunk => 
-                    `https://translate.google.com/translate_tts?ie=UTF-8&tl=my&client=tw-ob&q=${encodeURIComponent(chunk)}`
+               const audioUrls = textChunks.map(chunk =>
+https://translate.google.com/translate_tts?ie=UTF-8&tl=my&client=tw-ob&q=${encodeURIComponent(chunk)}
+);
                 );
 
                 if (audioUrls.length === 1) {
@@ -163,7 +166,7 @@
                     downloadBtn.href = audioUrls[0];
                 }
 
-                downloadBtn.download = `${fileName}.mp3`;
+                downloadBtn.download = ${fileName}.mp3;
                 
                 if(resultSection) resultSection.classList.remove("hidden");
                 if(player) player.classList.remove("hidden");
