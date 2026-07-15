@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Myanmar AI Audio Studio - VIP</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts for premium feel -->
+    <link href="https://fonts.googleapis.com/css2?family=Padauk:wght@400;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #0d2354;
+            --accent-color: #f1c40f;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+        body {
+            background: var(--bg-gradient);
+            font-family: 'Inter', 'Padauk', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 10px;
+        }
+        .app-container {
+            width: 100%;
+            max-width: 520px;
+            perspective: 1000px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        .card-header-vip {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            border-bottom: 5px solid var(--accent-color);
+            position: relative;
+        }
+        .card-header-vip h5 {
+            font-weight: 700;
+            margin-bottom: 10px;
+            letter-spacing: 0.5px;
+        }
+        .telegram-btn {
+            background: rgba(255, 255, 255, 0.15);
+            color: var(--accent-color);
+            border: 1px solid var(--accent-color);
+            border-radius: 30px;
+            padding: 8px 20px;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+        .telegram-btn:hover {
+            background: var(--accent-color);
+            color: var(--primary-color);
+            transform: scale(1.05);
+        }
+        .form-control, .form-select {
+            border-radius: 12px;
+            padding: 12px 16px;
+            border: 2px solid #e1e8ed;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(13, 35, 84, 0.15);
+        }
+        .btn-vip {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 14px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+        .btn-vip:hover {
+            background: #1a3c7c;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(13, 35, 84, 0.3);
+        }
+        .btn-generate {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 14px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+        .btn-generate:hover {
+            background: linear-gradient(135deg, #ff6b6b, #e74c3c);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+        }
+        .btn-download {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 12px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .btn-download:hover {
+            background: linear-gradient(135deg, #2ecc71, #2ecc71);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3);
+        }
+        .hidden {
+            display: none !important;
+        }
+        /* Loader styles */
+        .loading-wave {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            height: 40px;
+            margin: 15px 0;
+        }
+        .loading-bar {
+            width: 4px;
+            height: 18px;
+            background-color: var(--danger-color);
+            border-radius: 4px;
+            animation: wave 1.2s ease-in-out infinite;
+        }
+        .loading-bar:nth-child(2) { animation-delay: 0.1s; height: 28px; }
+        .loading-bar:nth-child(3) { animation-delay: 0.2s; height: 38px; }
+        .loading-bar:nth-child(4) { animation-delay: 0.3s; height: 28px; }
+        .loading-bar:nth-child(5) { animation-delay: 0.4s; height: 18px; }
+        @keyframes wave {
+            0%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(1.7); }
+        }
+        /* Custom alert */
+        .status-badge {
+            background-color: #e8f8f5;
+            color: #1abc9c;
+            border-radius: 30px;
+            padding: 8px 16px;
+            font-weight: 600;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid #d1f2eb;
+        }
+        .audio-player-container {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid #e9ecef;
+        }
+        /* platform tag */
+        .platform-selector {
+            display: flex;
+            gap: 15px;
+        }
+        .platform-card {
+            flex: 1;
+            cursor: pointer;
+            border: 2px solid #e1e8ed;
+            border-radius: 12px;
+            padding: 10px;
+            text-align: center;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        .platform-card input {
+            display: none;
+        }
+        .platform-card:hover {
+            border-color: var(--primary-color);
+            background: #f8f9fa;
+        }
+        .platform-card.active {
+            border-color: var(--primary-color);
+            background-color: rgba(13, 35, 84, 0.05);
+            color: var(--primary-color);
+        }
+        /* Character voice selector UI card */
+        .voice-option-card {
+            border: 2px solid #e1e8ed;
+            border-radius: 12px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+        .voice-option-card:hover {
+            border-color: var(--primary-color);
+            background: #f8f9fa;
+        }
+        .voice-option-card.active {
+            border-color: var(--primary-color);
+            background-color: rgba(13, 35, 84, 0.05);
+        }
+        .voice-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: var(--primary-color);
+        }
+        .voice-option-card.active .voice-icon {
+            background: var(--primary-color);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+
+    <!-- ၁။ LOGIN BOX -->
+    <div id="loginSection" class="card shadow">
+        <div class="card-header-vip">
+            <h5>🔑 VIP Password (သို့) အကောင့်အသစ် ဝယ်ယူလိုပါက</h5>
+            <a href="https://t.me/Mrkhant98" class="telegram-btn" target="_blank">
+                <i class="fab fa-telegram-plane"></i> @Mrkhant98
+            </a>
+            <div class="text-white-50 small mt-2">သို့ Telegram မှ တိုက်ရိုက် ဆက်သွယ်နိုင်ပါသည်။</div>
+        </div>
+        <div class="card-body p-4">
+            <div class="mb-4">
+                <label class="form-label fw-bold text-dark"><i class="fas fa-key text-warning me-2"></i> Password ရိုက်ထည့်ပါ</label>
+                <div class="position-relative">
+                    <input type="password" id="passwordInput" class="form-control" placeholder="Password ဖြည့်ပါ..." required>
+                    <button type="button" class="btn btn-link position-absolute end-0 top-0 mt-2 me-2 text-secondary" onclick="togglePasswordVisibility()">
+                        <i id="eyeIcon" class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+            <button onclick="checkVIPPassword()" id="loginBtn" class="btn btn-vip w-100 fw-bold">
+                <i class="fas fa-rocket me-2"></i> လော့ဂ်အင် ဝင်မည် (Login)
+            </button>
+            <div id="loginError" class="alert alert-danger mt-3 py-2 px-3 text-center small hidden"></div>
+        </div>
+    </div>
+
+    <!-- ၂။ MAIN STUDIO BOX -->
+    <div id="studioSection" class="card shadow hidden">
+        <div class="card-header-vip py-3">
+            <h3 class="fw-bold mb-1" style="font-size: 22px; color: var(--accent-color);">🎙 Myanmar AI Audio Studio</h3>
+            <div class="text-white-50 small">Edge Neural Text-To-Speech Technology</div>
+        </div>
+        <div class="card-body p-4">
+            <div class="text-center mb-3">
+                <div class="status-badge" id="vipStatus">
+                    <i class="fas fa-crown text-warning"></i> VIP Active
+                </div>
+            </div>
+
+            <!-- သိမ်းဆည်းမည့် ဖိုင်အမည် -->
+            <div class="mb-3">
+                <label class="form-label small fw-bold text-secondary"><i class="fas fa-file-audio me-1"></i> သိမ်းဆည်းမည့် ဖိုင်အမည်</label>
+                <input type="text" id="fileNameInput" class="form-control" value="Myanmar_Audio_Voice">
+            </div>
+
+            <!-- ဇာတ်ကောင် / အသံ ရွေးချယ်ရန် -->
+            <div class="mb-3">
+                <label class="form-label small fw-bold text-secondary"><i class="fas fa-user-astronaut me-1"></i> ဇာတ်ကောင် / အသံ ရွေးချယ်ရန်</label>
+
+                <div class="voice-option-card active" onclick="selectVoice('my-MM-NilarNeural', this)">
+                    <div class="voice-icon"><i class="fas fa-venus"></i></div>
+                    <div>
+                        <div class="fw-bold text-dark">မနီလာ (Nilar)</div>
+                        <small class="text-muted">မြန်မာအမျိုးသမီးအသံ (Female - Neural)</small>
+                    </div>
+                </div>
+
+                <div class="voice-option-card" onclick="selectVoice('my-MM-ThihaNeural', this)">
+                    <div class="voice-icon"><i class="fas fa-mars"></i></div>
+                    <div>
+                        <div class="fw-bold text-dark">မောင်သီဟ (Thiha)</div>
+                        <small class="text-muted">မြန်မာအမျိုးသားအသံ (Male - Neural)</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- စာတန်းထိုး အမျိုးအစား -->
+            <div class="mb-3">
+                <label class="form-label small fw-bold text-secondary"><i class="fas fa-laptop-code me-1"></i> စာတန်းထိုး အမျိုးအစား (Platform)</label>
+                <div class="platform-selector">
+                    <div class="platform-card active" onclick="selectPlatform('tiktok', this)">
+                        <i class="fab fa-tiktok me-1"></i> TikTok
+                    </div>
+                    <div class="platform-card" onclick="selectPlatform('youtube', this)">
+                        <i class="fab fa-youtube me-1"></i> YouTube
+                    </div>
+                </div>
+            </div>
+
+            <!-- စာသား -->
+            <div class="mb-3">
+                <label class="form-label small fw-bold text-secondary"><i class="fas fa-align-left me-1"></i> စာသား</label>
+                <textarea id="textInput" class="form-control" rows="4" placeholder="ဤနေရာတွင် မြန်မာလို စာသားရိုက်ပါ..."></textarea>
+                <div class="text-end mt-1">
+                    <small id="charCount" class="text-muted">0 လုံး</small>
+                </div>
+            </div>
+
+            <!-- Generation Button -->
+            <button onclick="generateAudio()" id="genBtn" class="btn btn-generate w-100 fw-bold">
+                <i class="fas fa-music me-2"></i> အသံဖိုင် ဖန်တီးမည် (Generate)
+            </button>
+
+            <!-- Generation Loading state -->
+            <div id="loadingSection" class="hidden text-center mt-3">
+                <div class="loading-wave">
+                    <div class="loading-bar"></div>
+                    <div class="loading-bar"></div>
+                    <div class="loading-bar"></div>
+                    <div class="loading-bar"></div>
+                    <div class="loading-bar"></div>
+                </div>
+                <div class="small fw-bold text-secondary" id="loadingText">အသံဖိုင်ကို စနစ်တကျ ပြောင်းလဲဖန်တီးနေပါသည်...</div>
+            </div>
+
+            <!-- Audio Player & Download Button -->
+            <div id="resultSection" class="mt-4 hidden">
+                <div class="audio-player-container shadow-sm">
+                    <h6 class="text-center text-dark fw-bold mb-3"><i class="fas fa-headphones-alt me-2 text-primary"></i> ဖန်တီးပြီးသော အသံဖိုင်</h6>
+                    <audio id="audioPlayer" controls class="w-100 mb-3"></audio>
+                    <a id="downloadBtn" class="btn-download w-100 fw-bold" href="#" download>
+                        <i class="fas fa-cloud-download-alt"></i> ဒေါင်းလုဒ်ဆွဲမည် (Download MP3)
+                    </a>
+                </div>
+            </div>
+
+            <!-- Error message container for Main Studio -->
+            <div id="studioError" class="alert alert-danger mt-3 py-2 px-3 text-center small hidden"></div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // App variables
+    let selectedVoice = "my-MM-NilarNeural";
+    let selectedPlatform = "tiktok";
+    let activePassword = "";
+
+    // Track character counts for Myanmar text
+    const textInput = document.getElementById("textInput");
+    const charCount = document.getElementById("charCount");
+    textInput.addEventListener("input", () => {
+        charCount.innerText = `${textInput.value.length} လုံး`;
+    });
+
+    // Check if password exists in localStorage
+    window.addEventListener("DOMContentLoaded", () => {
+        const savedPassword = localStorage.getItem("mytop_voice_password");
+        if (savedPassword) {
+            document.getElementById("passwordInput").value = savedPassword;
+            checkVIPPassword();
+        }
+    });
+
+    // Toggle password character visibility
+    function togglePasswordVisibility() {
+        const pwdInput = document.getElementById("passwordInput");
+        const eyeIcon = document.getElementById("eyeIcon");
+        if (pwdInput.type === "password") {
+            pwdInput.type = "text";
+            eyeIcon.classList.remove("fa-eye");
+            eyeIcon.classList.add("fa-eye-slash");
+        } else {
+            pwdInput.type = "password";
+            eyeIcon.classList.remove("fa-eye-slash");
+            eyeIcon.classList.add("fa-eye");
+        }
+    }
+
+    // Interactive Voice selector
+    function selectVoice(voiceId, element) {
+        selectedVoice = voiceId;
+        document.querySelectorAll(".voice-option-card").forEach(el => el.classList.remove("active"));
+        element.classList.add("active");
+    }
+
+    // Interactive Platform selector
+    function selectPlatform(platformId, element) {
+        selectedPlatform = platformId;
+        document.querySelectorAll(".platform-card").forEach(el => el.classList.remove("active"));
+        element.classList.add("active");
+    }
+
+    // Perform backend login validation
+    async function checkVIPPassword() {
+        const userInput = document.getElementById("passwordInput").value.trim();
+        const errorText = document.getElementById("loginError");
+        const loginBtn = document.getElementById("loginBtn");
+
+        if (!userInput) {
+            errorText.innerText = "⚠️ ကျေးဇူးပြု၍ Password ဖြည့်သွင်းပါ!";
+            errorText.classList.remove("hidden");
+            return;
+        }
+
+        loginBtn.innerText = "⏳ စစ်ဆေးနေပါသည်...";
+        loginBtn.disabled = true;
+        errorText.classList.add("hidden");
+
+        try {
+            const response = await fetch("/api/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ password: userInput })
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.success) {
+                activePassword = userInput;
+                localStorage.setItem("mytop_voice_password", userInput);
+
+                document.getElementById("loginSection").classList.add("hidden");
+                document.getElementById("studioSection").classList.remove("hidden");
+
+                const statusEl = document.getElementById("vipStatus");
+                statusEl.innerHTML = `<i class="fas fa-crown text-warning"></i> VIP သက်တမ်းကုန်မည့်ရက်: ${result.expiryDate}`;
+            } else {
+                errorText.innerText = `❌ ${result.error || "Password မှားနေပါသည်။ အသစ်ဝယ်ယူရန် Telegram ကို ဆက်သွယ်ပါ။"}`;
+                errorText.classList.remove("hidden");
+                localStorage.removeItem("mytop_voice_password");
+            }
+        } catch (error) {
+            console.error(error);
+            errorText.innerText = "❌ ဆာဗာနှင့် ချိတ်ဆက်မှု မအောင်မြင်ပါ။ နောက်မှ ထပ်စမ်းကြည့်ပါ။";
+            errorText.classList.remove("hidden");
+        } finally {
+            loginBtn.innerHTML = '<i class="fas fa-rocket me-2"></i> လော့ဂ်အင် ဝင်မည် (Login)';
+            loginBtn.disabled = false;
+        }
+    }
+
+    // Generate Myanmar Neural TTS audio from backend
+    async function generateAudio() {
+        const text = textInput.value.trim();
+        const fileName = document.getElementById("fileNameInput").value.trim() || "Myanmar_Voice";
+        const genBtn = document.getElementById("genBtn");
+        const loadingSection = document.getElementById("loadingSection");
+        const resultSection = document.getElementById("resultSection");
+        const player = document.getElementById("audioPlayer");
+        const downloadBtn = document.getElementById("downloadBtn");
+        const studioError = document.getElementById("studioError");
+
+        if (!text) {
+            alert("ကျေးဇူးပြု၍ စာသားရိုက်ထည့်ပါ!");
+            return;
+        }
+
+        // Setup loading state
+        genBtn.disabled = true;
+        genBtn.classList.add("hidden");
+        loadingSection.classList.remove("hidden");
+        resultSection.classList.add("hidden");
+        studioError.classList.add("hidden");
+
+        try {
+            const response = await fetch("/api/tts", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${activePassword}`
+                },
+                body: JSON.stringify({
+                    text: text,
+                    voice: selectedVoice,
+                    platform: selectedPlatform,
+                    password: activePassword // Backwards compatibility & double fallback
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || `Error processing audio: ${response.statusText}`);
+            }
+
+            // Retrieve audio as blob to handle download button and local streaming elegantly
+            const blob = await response.blob();
+            const audioUrl = URL.createObjectURL(blob);
+
+            // Update UI with generated audio details
+            player.src = audioUrl;
+            downloadBtn.href = audioUrl;
+            downloadBtn.download = `${fileName}.mp3`;
+
+            resultSection.classList.remove("hidden");
+            player.play().catch(e => console.log("Auto-play was blocked or failed, waiting for user click.", e));
+
+        } catch (error) {
+            console.error(error);
+            studioError.innerText = `❌ ${error.message || "အသံဖန်တီးမှု အဆင်မပြေပါ။ ခဏကြာမှ ပြန်စမ်းပါ။"}`;
+            studioError.classList.remove("hidden");
+        } finally {
+            genBtn.disabled = false;
+            genBtn.classList.remove("hidden");
+            loadingSection.classList.add("hidden");
+        }
+    }
+</script>
+</body>
+</html>
