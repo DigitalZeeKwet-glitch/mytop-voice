@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Myanmar AI Audio Studio - Admin Panel</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Padauk:wght@400;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #0d2354;
+            --accent-color: #f1c40f;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --bg-gradient: linear-gradient(135deg, #0d2354 0%, #1a3c7c 100%);
+        }
+        body {
+            background: #f4f6f9;
+            font-family: 'Inter', 'Padauk', sans-serif;
+            min-height: 100vh;
+        }
+        .login-body {
+            background: var(--bg-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 10px;
+        }
+        .login-card {
+            width: 100%;
+            max-width: 440px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            border: none;
+            overflow: hidden;
+        }
+        .card-header-admin {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            border-bottom: 5px solid var(--accent-color);
+        }
+        .btn-admin {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 14px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+        .btn-admin:hover {
+            background: #1a3c7c;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(13, 35, 84, 0.3);
+        }
+        .hidden {
+            display: none !important;
+        }
+        /* Dashboard styles */
+        .navbar-admin {
+            background-color: var(--primary-color);
+            border-bottom: 4px solid var(--accent-color);
+        }
+        .navbar-brand {
+            font-weight: 700;
+            color: var(--accent-color) !important;
+        }
+        .dashboard-container {
+            max-width: 1200px;
+            margin-top: 40px;
+            margin-bottom: 40px;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        .stat-icon.users {
+            background-color: rgba(13, 35, 84, 0.1);
+            color: var(--primary-color);
+        }
+        .stat-icon.active-users {
+            background-color: rgba(46, 204, 113, 0.1);
+            color: var(--success-color);
+        }
+        .stat-icon.expired-users {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--danger-color);
+        }
+        .main-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 6px 25px rgba(0,0,0,0.06);
+            border: none;
+            padding: 30px;
+            margin-top: 25px;
+        }
+        .form-control, .form-select {
+            border-radius: 10px;
+            padding: 10px 14px;
+            border: 2px solid #e1e8ed;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(13, 35, 84, 0.15);
+        }
+        .table {
+            vertical-align: middle;
+        }
+        .badge-status {
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 30px;
+            font-size: 12px;
+        }
+        .badge-status.active {
+            background-color: rgba(46, 204, 113, 0.15);
+            color: #27ae60;
+        }
+        .badge-status.expired {
+            background-color: rgba(231, 76, 60, 0.15);
+            color: #c0392b;
+        }
+        .action-btn {
+            border: none;
+            background: none;
+            padding: 6px 10px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+        .action-btn.edit {
+            color: #3498db;
+            background-color: rgba(52, 152, 219, 0.1);
+        }
+        .action-btn.edit:hover {
+            background-color: #3498db;
+            color: white;
+        }
+        .action-btn.delete {
+            color: var(--danger-color);
+            background-color: rgba(231, 76, 60, 0.1);
+        }
+        .action-btn.delete:hover {
+            background-color: var(--danger-color);
+            color: white;
+        }
+    </style>
+</head>
+<body class="login-body" id="bodyNode">
+
+    <!-- 🔑 LOGIN SCREEN -->
+    <div id="loginScreen" class="login-card shadow-lg">
+        <div class="card-header-admin">
+            <h4 class="fw-bold mb-1"><i class="fas fa-user-shield me-2"></i> Admin Panel</h4>
+            <div class="text-white-50 small">Myanmar AI Audio Studio - VIP Portal</div>
+        </div>
+        <div class="card-body p-4">
+            <div class="mb-3">
+                <label class="form-label fw-bold text-dark">Username</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light text-secondary"><i class="fas fa-user"></i></span>
+                    <input type="text" id="adminUsername" class="form-control" placeholder="အက်ဒမင် အသုံးပြုသူအမည်..." required>
+                </div>
+            </div>
+            <div class="mb-4">
+                <label class="form-label fw-bold text-dark">Password</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light text-secondary"><i class="fas fa-lock"></i></span>
+                    <input type="password" id="adminPassword" class="form-control" placeholder="လျှို့ဝှက်နံပါတ်..." required>
+                </div>
+            </div>
+            <button onclick="handleAdminLogin()" id="loginBtn" class="btn btn-admin w-100 fw-bold">
+                <i class="fas fa-sign-in-alt me-2"></i> Login
+            </button>
+            <div id="loginError" class="alert alert-danger mt-3 py-2 px-3 text-center small hidden"></div>
+        </div>
+    </div>
+
+    <!-- 📊 DASHBOARD SCREEN -->
+    <div id="dashboardScreen" class="w-100 hidden">
+        <nav class="navbar navbar-expand-lg navbar-dark navbar-admin py-3 shadow">
+            <div class="container">
+                <span class="navbar-brand d-flex align-items-center gap-2">
+                    <i class="fas fa-shield-halved fs-4"></i>
+                    <span>Myanmar AI Audio Studio <span class="badge bg-warning text-dark px-2 py-1 ms-1" style="font-size: 11px;">Admin Dashboard</span></span>
+                </span>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="text-white d-none d-sm-inline-block small"><i class="fas fa-circle-user text-warning me-1"></i> မင်္ဂလာပါ, <b id="loggedInUser">Admin</b></span>
+                    <button onclick="handleAdminLogout()" class="btn btn-outline-warning btn-sm fw-bold px-3 py-2 rounded-pill">
+                        <i class="fas fa-sign-out-alt me-1"></i> ထွက်မည်
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container dashboard-container">
+            <!-- stats row -->
+            <div class="row g-3">
+                <div class="col-12 col-md-4">
+                    <div class="stat-card shadow-sm">
+                        <div class="stat-icon users">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div>
+                            <div class="text-secondary small fw-bold">စုစုပေါင်း VIP</div>
+                            <h3 class="fw-bold mb-0 text-dark" id="statTotal">0</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="stat-card shadow-sm">
+                        <div class="stat-icon active-users">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div>
+                            <div class="text-secondary small fw-bold">အသုံးပြုဆဲ (Active)</div>
+                            <h3 class="fw-bold mb-0 text-success" id="statActive">0</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="stat-card shadow-sm">
+                        <div class="stat-icon expired-users">
+                            <i class="fas fa-times-circle"></i>
+                        </div>
+                        <div>
+                            <div class="text-secondary small fw-bold">သက်တမ်းကုန်ဆုံး (Expired)</div>
+                            <h3 class="fw-bold mb-0 text-danger" id="statExpired">0</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4 mt-1">
+                <!-- Left: CRUD operations Form -->
+                <div class="col-12 col-lg-4">
+                    <div class="main-card shadow-sm h-100">
+                        <h5 class="fw-bold text-dark mb-4" id="formTitle"><i class="fas fa-user-plus text-primary me-2"></i> VIP အသစ်ထည့်သွင်းခြင်း</h5>
+                        <form id="vipForm" onsubmit="handleVipSubmit(event)">
+                            <input type="hidden" id="editUserId">
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-secondary">VIP Password (User ID)</label>
+                                <input type="text" id="vipPassword" class="form-control" placeholder="ဥပမာ- user_9999 (သို့) 000123" required>
+                                <div class="form-text text-muted" style="font-size: 11px;">ဤ VIP Password သည် အသုံးပြုသူမှ Login ဝင်ရာတွင် သုံးရမည့် ID ဖြစ်ပါသည်။</div>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label small fw-bold text-secondary">သက်တမ်းကုန်ဆုံးမည့် ရက်စွဲ</label>
+                                <input type="date" id="vipExpiry" class="form-control" required>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="submit" id="submitFormBtn" class="btn btn-primary w-100 fw-bold">
+                                    <i class="fas fa-save me-1"></i> အတည်ပြုမည်
+                                </button>
+                                <button type="button" onclick="resetForm()" id="cancelEditBtn" class="btn btn-secondary fw-bold hidden">
+                                    ပယ်ဖျက်
+                                </button>
+                            </div>
+                        </form>
+                        <div id="formMessage" class="alert alert-success mt-3 py-2 px-3 small hidden"></div>
+                        <div id="formError" class="alert alert-danger mt-3 py-2 px-3 small hidden"></div>
+                    </div>
+                </div>
+
+                <!-- Right: Users table list -->
+                <div class="col-12 col-lg-8">
+                    <div class="main-card shadow-sm h-100">
+                        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
+                            <h5 class="fw-bold text-dark mb-0"><i class="fas fa-id-card-clip text-primary me-2"></i> VIP အသုံးပြုသူများ စာရင်း</h5>
+                            <!-- Search Bar -->
+                            <div class="position-relative" style="max-width: 300px; width: 100%;">
+                                <input type="text" id="searchBar" onkeyup="handleSearch()" class="form-control form-control-sm ps-4" placeholder="VIP ရှာဖွေရန်...">
+                                <span class="position-absolute start-0 top-50 translate-middle-y ps-2 text-secondary" style="font-size: 12px;">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>ID / Password</th>
+                                        <th>Expiry Date</th>
+                                        <th>အခြေအနေ</th>
+                                        <th class="text-end">လုပ်ဆောင်ချက်</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="vipTableBody">
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted py-4">
+                                            <div class="spinner-border spinner-border-sm text-secondary me-2"></div>
+                                            အချက်အလက်များ ဆွဲတင်နေပါသည်...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        let adminToken = localStorage.getItem('mytop_voice_admin_token');
+
+        window.addEventListener('DOMContentLoaded', () => {
+            if (adminToken) {
+                checkAdminSession();
+            } else {
+                showLoginScreen();
+            }
+        });
+
+        function showLoginScreen() {
+            document.getElementById('bodyNode').classList.add('login-body');
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('dashboardScreen').classList.add('hidden');
+        }
+
+        function showDashboardScreen(username) {
+            document.getElementById('bodyNode').classList.remove('login-body');
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('dashboardScreen').classList.remove('hidden');
+            document.getElementById('loggedInUser').innerText = username;
+            loadVipUsers();
+        }
+
+        // 1. Check existing session
+        async function checkAdminSession() {
+            try {
+                const response = await fetch('/api/admin/me', {
+                    headers: {
+                        'Authorization': `Bearer ${adminToken}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    showDashboardScreen(data.username);
+                } else {
+                    localStorage.removeItem('mytop_voice_admin_token');
+                    showLoginScreen();
+                }
+            } catch (error) {
+                console.error('Error verifying admin session:', error);
+                showLoginScreen();
+            }
+        }
+
+        // 2. Admin Login
+        async function handleAdminLogin() {
+            const usernameInput = document.getElementById('adminUsername').value.trim();
+            const passwordInput = document.getElementById('adminPassword').value.trim();
+            const loginBtn = document.getElementById('loginBtn');
+            const errorDiv = document.getElementById('loginError');
+
+            if (!usernameInput || !passwordInput) {
+                errorDiv.innerText = '⚠️ Username နှင့် Password ဖြည့်ပါ။';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+
+            loginBtn.innerText = '⏳ စစ်ဆေးနေပါသည်...';
+            loginBtn.disabled = true;
+            errorDiv.classList.add('hidden');
+
+            try {
+                const response = await fetch('/api/admin/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: usernameInput, password: passwordInput })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    adminToken = result.token;
+                    localStorage.setItem('mytop_voice_admin_token', result.token);
+                    showDashboardScreen(usernameInput);
+                } else {
+                    errorDiv.innerText = `❌ ${result.error || 'Login ဝင်ရောက်မှု မအောင်မြင်ပါ။'}`;
+                    errorDiv.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error(error);
+                errorDiv.innerText = '❌ ဆာဗာနှင့် ချိတ်ဆက်မှု မအောင်မြင်ပါ။';
+                errorDiv.classList.remove('hidden');
+            } finally {
+                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt me-2"></i> Login';
+                loginBtn.disabled = false;
+            }
+        }
+
+        // 3. Admin Logout
+        function handleAdminLogout() {
+            localStorage.removeItem('mytop_voice_admin_token');
+            adminToken = null;
+            showLoginScreen();
+        }
+
+        // 4. Load VIP Users List
+        let cachedUsers = [];
+        async function loadVipUsers(searchQuery = '') {
+            const tableBody = document.getElementById('vipTableBody');
+            try {
+                const response = await fetch(`/api/admin/users?search=${encodeURIComponent(searchQuery)}`, {
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        handleAdminLogout();
+                        return;
+                    }
+                    throw new Error('Failed to retrieve VIP users list');
+                }
+
+                const data = await response.json();
+                cachedUsers = data.users || [];
+                renderVipTable(cachedUsers);
+                updateStats(cachedUsers);
+            } catch (error) {
+                console.error(error);
+                tableBody.innerHTML = `<tr><td colspan="4" class="text-center text-danger py-4"><i class="fas fa-circle-exclamation me-1"></i> အချက်အလက်များ ဆွဲတင်ရန် မအောင်မြင်ပါ။</td></tr>`;
+            }
+        }
+
+        function renderVipTable(users) {
+            const tableBody = document.getElementById('vipTableBody');
+            if (users.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-4"><i class="fas fa-box-open me-1"></i> ရှာမတွေ့ပါ။</td></tr>`;
+                return;
+            }
+
+            tableBody.innerHTML = users.map(user => {
+                const badgeClass = user.status === 'active' ? 'active' : 'expired';
+                const badgeText = user.status === 'active' ? 'Active (အသုံးပြုဆဲ)' : 'Expired (သက်တမ်းကုန်)';
+                return `
+                    <tr>
+                        <td class="fw-bold text-dark">${escapeHtml(user.password)}</td>
+                        <td>${escapeHtml(user.expiryDate)}</td>
+                        <td><span class="badge-status ${badgeClass}">${badgeText}</span></td>
+                        <td class="text-end">
+                            <button onclick="editVipUser('${escapeHtml(user.password)}', '${escapeHtml(user.expiryDate)}')" class="action-btn edit me-2" title="သက်တမ်းတိုးရန်/ပြင်ဆင်ရန်">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="deleteVipUser('${escapeHtml(user.password)}')" class="action-btn delete" title="ဖျက်သိမ်းရန်">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function updateStats(users) {
+            document.getElementById('statTotal').innerText = users.length;
+            const activeCount = users.filter(u => u.status === 'active').length;
+            const expiredCount = users.filter(u => u.status === 'expired').length;
+
+            document.getElementById('statActive').innerText = activeCount;
+            document.getElementById('statExpired').innerText = expiredCount;
+        }
+
+        // 5. Search filtering client-side / debounce trigger
+        let searchTimeout;
+        function handleSearch() {
+            clearTimeout(searchTimeout);
+            const query = document.getElementById('searchBar').value;
+            searchTimeout = setTimeout(() => {
+                loadVipUsers(query);
+            }, 300);
+        }
+
+        // 6. VIP Add or Edit Submit
+        async function handleVipSubmit(event) {
+            event.preventDefault();
+            const editId = document.getElementById('editUserId').value;
+            const passwordInput = document.getElementById('vipPassword');
+            const expiryInput = document.getElementById('vipExpiry');
+            const submitBtn = document.getElementById('submitFormBtn');
+            const msgDiv = document.getElementById('formMessage');
+            const errDiv = document.getElementById('formError');
+
+            msgDiv.classList.add('hidden');
+            errDiv.classList.add('hidden');
+            submitBtn.disabled = true;
+
+            const payload = {
+                password: passwordInput.value.trim(),
+                expiryDate: expiryInput.value
+            };
+
+            try {
+                let response;
+                if (editId) {
+                    // Update existing
+                    response = await fetch(`/api/admin/users/${encodeURIComponent(editId)}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${adminToken}`
+                        },
+                        body: JSON.stringify({ expiryDate: payload.expiryDate })
+                    });
+                } else {
+                    // Add new
+                    response = await fetch('/api/admin/users', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${adminToken}`
+                        },
+                        body: JSON.stringify(payload)
+                    });
+                }
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    msgDiv.innerText = editId ? '✔ သက်တမ်းတိုး ပြင်ဆင်မှု အောင်မြင်ပါသည်။' : '✔ VIP အသုံးပြုသူအသစ် အောင်မြင်စွာ ထည့်သွင်းပြီးပါပြီ။';
+                    msgDiv.classList.remove('hidden');
+                    resetForm();
+                    loadVipUsers();
+                } else {
+                    errDiv.innerText = `❌ ${result.error || 'လုပ်ဆောင်မှု မအောင်မြင်ပါ။'}`;
+                    errDiv.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error(error);
+                errDiv.innerText = '❌ ဆာဗာနှင့် ချိတ်ဆက်မှု မအောင်မြင်ပါ။';
+                errDiv.classList.remove('hidden');
+            } finally {
+                submitBtn.disabled = false;
+            }
+        }
+
+        // 7. Edit mode triggered
+        function editVipUser(password, expiryDate) {
+            document.getElementById('editUserId').value = password;
+            const passwordField = document.getElementById('vipPassword');
+            passwordField.value = password;
+            passwordField.disabled = true; // cannot change user ID / password after creation
+            document.getElementById('vipExpiry').value = expiryDate;
+
+            document.getElementById('formTitle').innerHTML = `<i class="fas fa-edit text-warning me-2"></i> VIP အချက်အလက် ပြင်ဆင်ခြင်း`;
+            document.getElementById('cancelEditBtn').classList.remove('hidden');
+            document.getElementById('submitFormBtn').innerHTML = `<i class="fas fa-save me-1"></i> အသစ်ပြင်မည်`;
+            document.getElementById('vipExpiry').focus();
+        }
+
+        // 8. Cancel/Reset edit state
+        function resetForm() {
+            document.getElementById('editUserId').value = '';
+            const passwordField = document.getElementById('vipPassword');
+            passwordField.value = '';
+            passwordField.disabled = false;
+            document.getElementById('vipExpiry').value = '';
+
+            document.getElementById('formTitle').innerHTML = `<i class="fas fa-user-plus text-primary me-2"></i> VIP အသစ်ထည့်သွင်းခြင်း`;
+            document.getElementById('cancelEditBtn').classList.add('hidden');
+            document.getElementById('submitFormBtn').innerHTML = `<i class="fas fa-save me-1"></i> အတည်ပြုမည်`;
+        }
+
+        // 9. Delete VIP user
+        async function deleteVipUser(password) {
+            if (!confirm(`သင်သည် VIP User (${password}) အား ဖျက်သိမ်းရန် သေချာပါသလား?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/admin/users/${encodeURIComponent(password)}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+
+                const result = await response.json();
+                if (response.ok && result.success) {
+                    alert('ဖျက်သိမ်းမှု အောင်မြင်ပါသည်။');
+                    loadVipUsers();
+                    // If we deleted what was in edit form, reset it
+                    if (document.getElementById('editUserId').value === password) {
+                        resetForm();
+                    }
+                } else {
+                    alert(`❌ ဖျက်သိမ်းရန် မအောင်မြင်ပါ: ${result.error}`);
+                }
+            } catch (error) {
+                console.error(error);
+                alert('❌ ဆာဗာနှင့် ချိတ်ဆက်မှု မအောင်မြင်ပါ။');
+            }
+        }
+
+        // Helper to prevent HTML injections
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, "&amp;")
+                      .replace(/</g, "&lt;")
+                      .replace(/>/g, "&gt;")
+                      .replace(/"/g, "&quot;")
+                      .replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>
