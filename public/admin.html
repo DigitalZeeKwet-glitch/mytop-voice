@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIP Users Control Panel - Myanmar AI Audio Studio</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Padauk:wght@400;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #0d2354;
+            --accent-color: #f1c40f;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --bg-gradient: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        }
+        body {
+            background: var(--bg-gradient);
+            font-family: 'Inter', 'Padauk', sans-serif;
+            min-height: 100vh;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            padding: 20px 10px;
+        }
+        .container {
+            max-width: 960px;
+            margin: auto;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .card-header-admin {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px;
+            border-bottom: 5px solid var(--accent-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .card-header-admin h4 {
+            font-weight: 700;
+            margin: 0;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn-logout {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 30px;
+            padding: 6px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-logout:hover {
+            background: var(--danger-color);
+            border-color: var(--danger-color);
+            color: white;
+            transform: scale(1.05);
+        }
+        .form-control {
+            border-radius: 12px;
+            padding: 12px 16px;
+            border: 2px solid #e1e8ed;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(13, 35, 84, 0.15);
+        }
+        .btn-primary-admin {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+        .btn-primary-admin:hover {
+            background: #1a3c7c;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(13, 35, 84, 0.3);
+        }
+        .btn-accent {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 20px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-accent:hover {
+            background: #152d61;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(13, 35, 84, 0.25);
+        }
+        /* Badges */
+        .badge-active {
+            background-color: #e8f8f5;
+            color: #1abc9c;
+            border: 1px solid #d1f2eb;
+            border-radius: 20px;
+            padding: 5px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .badge-expired {
+            background-color: #fce4d6;
+            color: #e04a3a;
+            border: 1px solid #fad3cf;
+            border-radius: 20px;
+            padding: 5px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        /* Tables */
+        .table {
+            margin: 0;
+        }
+        .table th {
+            color: #6c757d;
+            font-weight: 600;
+            font-size: 13px;
+            border-bottom: 2px solid #edf2f9;
+            padding: 16px;
+        }
+        .table td {
+            padding: 16px;
+            vertical-align: middle;
+            font-size: 14px;
+            color: #333;
+            border-bottom: 1px solid #edf2f9;
+        }
+        /* Login Card overrides */
+        .login-card {
+            max-width: 450px;
+            margin: auto;
+            border-radius: 20px;
+        }
+        /* Modal overrides */
+        .modal-content {
+            border-radius: 20px;
+            border: none;
+            overflow: hidden;
+        }
+        .modal-header {
+            background: var(--primary-color);
+            color: white;
+            border-bottom: 4px solid var(--accent-color);
+            padding: 20px;
+        }
+        .modal-header .btn-close {
+            filter: invert(1) grayscale(1) brightness(2);
+        }
+        .hidden {
+            display: none !important;
+        }
+        .btn-action-edit {
+            background-color: #e3f2fd;
+            color: #1e88e5;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        .btn-action-edit:hover {
+            background-color: #1e88e5;
+            color: white;
+            transform: scale(1.1);
+        }
+        .btn-action-delete {
+            background-color: #ffebee;
+            color: #e53935;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        .btn-action-delete:hover {
+            background-color: #e53935;
+            color: white;
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container my-auto">
+
+    <!-- 1. LOGIN OVERLAY CARD -->
+    <div id="adminLoginSection" class="card glass-card login-card shadow-lg">
+        <div class="card-header-admin justify-content-center py-4">
+            <h4 class="text-center"><i class="fas fa-lock me-2"></i> Admin Login - Control Panel</h4>
+        </div>
+        <div class="card-body p-4">
+            <form id="loginForm" onsubmit="handleAdminLogin(event)">
+                <div class="mb-3">
+                    <label class="form-label fw-bold small text-secondary"><i class="fas fa-user me-1"></i> Admin Username</label>
+                    <input type="text" id="adminUsername" class="form-control" placeholder="အက်ဒမင် အကောင့်အမည်..." required>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label fw-bold small text-secondary"><i class="fas fa-key me-1"></i> Password</label>
+                    <input type="password" id="adminPassword" class="form-control" placeholder="လျှို့ဝှက်နံပါတ်..." required>
+                </div>
+                <button type="submit" id="adminLoginBtn" class="btn btn-primary-admin w-100">
+                    <i class="fas fa-sign-in-alt me-2"></i> လော့ဂ်အင် ဝင်မည်
+                </button>
+                <div id="loginError" class="alert alert-danger mt-3 py-2 text-center small hidden"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. MAIN ADMIN DASHBOARD -->
+    <div id="adminDashboardSection" class="card glass-card shadow-lg hidden">
+        <div class="card-header-admin">
+            <h4><i class="fas fa-users-cog"></i> VIP Users Management</h4>
+            <button onclick="handleLogout()" class="btn-logout">
+                <i class="fas fa-sign-out-alt"></i> ထွက်မည်
+            </button>
+        </div>
+        <div class="card-body p-4">
+            <!-- Search & Control Header -->
+            <div class="row g-3 mb-4 align-items-center">
+                <div class="col-md-7">
+                    <div class="position-relative">
+                        <input type="text" id="searchBar" class="form-control ps-5" placeholder="VIP Password / Token ကို ရှာရန်..." oninput="handleSearch(this.value)">
+                        <span class="position-absolute start-0 top-0 mt-3 ms-3 text-secondary"><i class="fas fa-search"></i></span>
+                    </div>
+                </div>
+                <div class="col-md-5 text-md-end">
+                    <button class="btn btn-accent w-100 w-md-auto justify-content-center" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                        <i class="fas fa-plus-circle"></i> VIP အသစ်ထည့်မည်
+                    </button>
+                </div>
+            </div>
+
+            <!-- VIP Users Table -->
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>VIP Password / User ID</th>
+                            <th>Expiry Date</th>
+                            <th>Status</th>
+                            <th>Created At</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userTableBody">
+                        <!-- Dynamic lines will load here -->
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-secondary">
+                                <i class="fas fa-spinner fa-spin me-2"></i> ဒေတာများ ဆွဲယူနေပါသည်...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="dashboardError" class="alert alert-danger mt-3 py-2 text-center small hidden"></div>
+        </div>
+    </div>
+
+</div>
+
+<!-- MODAL: ADD VIP USER -->
+<div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="addUserModalLabel"><i class="fas fa-user-plus me-2 text-warning"></i> VIP အသုံးပြုသူအသစ် ထည့်သွင်းရန်</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="addUserForm" onsubmit="handleAddUser(event)">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-secondary">VIP Password / User ID</label>
+                        <input type="text" id="newVipPassword" class="form-control" placeholder="ဥပမာ - 000123" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-bold small text-secondary">Expiry Date (သက်တမ်းကုန်ဆုံးမည့်ရက်)</label>
+                        <input type="date" id="newVipExpiry" class="form-control" required>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-secondary w-50" data-bs-dismiss="modal" style="border-radius:12px;">မလုပ်တော့ပါ</button>
+                        <button type="submit" class="btn btn-primary-admin w-50" id="saveUserBtn">အတည်ပြုမည်</button>
+                    </div>
+                    <div id="addUserError" class="alert alert-danger mt-3 py-2 text-center small hidden"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: EDIT EXPIRY DATE -->
+<div class="modal fade" id="editExpiryModal" tabindex="-1" aria-labelledby="editExpiryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="editExpiryModalLabel"><i class="fas fa-calendar-alt me-2 text-warning"></i> VIP သက်တမ်းတိုးမြှင့်ရန်</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="editExpiryForm" onsubmit="handleEditExpiry(event)">
+                    <input type="hidden" id="editVipPassword">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-secondary">VIP Account Password / ID</label>
+                        <input type="text" id="editVipPasswordDisplay" class="form-control" disabled>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-bold small text-secondary">New Expiry Date (သက်တမ်းကုန်ဆုံးမည့်ရက်အသစ်)</label>
+                        <input type="date" id="editVipExpiry" class="form-control" required>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-secondary w-50" data-bs-dismiss="modal" style="border-radius:12px;">မလုပ်တော့ပါ</button>
+                        <button type="submit" class="btn btn-primary-admin w-50" id="updateExpiryBtn">ပြင်ဆင်မည်</button>
+                    </div>
+                    <div id="editExpiryError" class="alert alert-danger mt-3 py-2 text-center small hidden"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap 5 Bundle JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    let adminToken = localStorage.getItem("mytop_admin_token") || "";
+    let searchTimeout = null;
+
+    // Check auth status on load
+    window.addEventListener("DOMContentLoaded", () => {
+        if (adminToken) {
+            showDashboard();
+        } else {
+            showLogin();
+        }
+    });
+
+    // Toggle view states
+    function showLogin() {
+        document.getElementById("adminLoginSection").classList.remove("hidden");
+        document.getElementById("adminDashboardSection").classList.add("hidden");
+    }
+
+    function showDashboard() {
+        document.getElementById("adminLoginSection").classList.add("hidden");
+        document.getElementById("adminDashboardSection").classList.remove("hidden");
+        loadVipUsers();
+    }
+
+    // XSS mitigation helper
+    function escapeHtml(text) {
+        if (!text) return "";
+        return text.toString()
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    // Handle Admin authentication
+    async function handleAdminLogin(event) {
+        event.preventDefault();
+        const usernameInput = document.getElementById("adminUsername").value.trim();
+        const passwordInput = document.getElementById("adminPassword").value.trim();
+        const errorText = document.getElementById("loginError");
+        const submitBtn = document.getElementById("adminLoginBtn");
+
+        errorText.classList.add("hidden");
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> စစ်ဆေးနေပါသည်...';
+        submitBtn.disabled = true;
+
+        try {
+            const response = await fetch("/api/admin/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username: usernameInput, password: passwordInput })
+            });
+
+            const data = await response.json();
+            if (response.ok && data.success) {
+                adminToken = data.token;
+                localStorage.setItem("mytop_admin_token", adminToken);
+                showDashboard();
+            } else {
+                errorText.innerText = data.error || "အက်ဒမင် အကောင့်အမည် သို့မဟုတ် လျှို့ဝှက်နံပါတ် မှားယွင်းနေပါသည်။";
+                errorText.classList.remove("hidden");
+            }
+        } catch (err) {
+            console.error(err);
+            errorText.innerText = "ဆာဗာနှင့် ချိတ်ဆက်မှု မအောင်မြင်ပါ။ နောက်မှ ထပ်စမ်းကြည့်ပါ။";
+            errorText.classList.remove("hidden");
+        } finally {
+            submitBtn.innerHTML = '<i class="fas fa-sign-in-alt me-2"></i> လော့ဂ်အင် ဝင်မည်';
+            submitBtn.disabled = false;
+        }
+    }
+
+    // Handle Admin sign-out
+    function handleLogout() {
+        adminToken = "";
+        localStorage.removeItem("mytop_admin_token");
+        showLogin();
+    }
+
+    // Load VIP users list (with optional search filter)
+    async function loadVipUsers(searchQuery = "") {
+        const tableBody = document.getElementById("userTableBody");
+        const dashboardError = document.getElementById("dashboardError");
+        dashboardError.classList.add("hidden");
+
+        try {
+            const url = searchQuery ? `/api/admin/users?search=${encodeURIComponent(searchQuery)}` : '/api/admin/users';
+            const response = await fetch(url, {
+                headers: { "Authorization": `Bearer ${adminToken}` }
+            });
+
+            const data = await response.json();
+
+            if (response.status === 401) {
+                // Token expired/invalid
+                handleLogout();
+                return;
+            }
+
+            if (response.ok && data.success) {
+                renderUserTable(data.users);
+            } else {
+                dashboardError.innerText = data.error || "ဒေတာဆွဲယူမှု မအောင်မြင်ပါ။";
+                dashboardError.classList.remove("hidden");
+            }
+        } catch (err) {
+            console.error(err);
+            dashboardError.innerText = "ဆာဗာချိတ်ဆက်မှု ချို့ယွင်းချက်။ ဒေတာဆွဲယူ၍မရပါ။";
+            dashboardError.classList.remove("hidden");
+        }
+    }
+
+    // Render User elements to HTML Table safely
+    function renderUserTable(users) {
+        const tableBody = document.getElementById("userTableBody");
+        tableBody.innerHTML = "";
+
+        if (users.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted"><i class="fas fa-folder-open me-2"></i> ရှာမတွေ့ပါ။ VIP အသုံးပြုသူ မရှိသေးပါ။</td></tr>';
+            return;
+        }
+
+        users.forEach(user => {
+            const tr = document.createElement("tr");
+
+            // Format Creation Date smoothly
+            const createDateObj = new Date(user.createdAt);
+            const formattedCreateDate = createDateObj.toLocaleDateString() || user.createdAt;
+
+            // Compute active-expired UI badges
+            const badgeClass = user.isActive ? "badge-active" : "badge-expired";
+            const badgeIcon = user.isActive ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-exclamation-circle"></i>';
+            const badgeText = user.isActive ? "Active" : "Expired";
+
+            tr.innerHTML = `
+                <td class="fw-bold">${escapeHtml(user.password)}</td>
+                <td class="text-secondary">${escapeHtml(user.expiryDate)}</td>
+                <td><span class="${badgeClass}">${badgeIcon} ${badgeText}</span></td>
+                <td class="text-secondary small">${escapeHtml(formattedCreateDate)}</td>
+                <td class="text-center">
+                    <div class="d-inline-flex gap-2">
+                        <button class="btn-action-edit" title="Edit Expiry Date" onclick="openEditModal('${escapeHtml(user.password)}', '${escapeHtml(user.expiryDate)}')">
+                            <i class="fas fa-calendar-alt"></i>
+                        </button>
+                        <button class="btn-action-delete" title="Delete VIP Account" onclick="confirmDeleteUser('${escapeHtml(user.password)}')">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                </td>
+            `;
+            tableBody.appendChild(tr);
+        });
+    }
+
+    // Search bar with built-in debounce
+    function handleSearch(val) {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            loadVipUsers(val.trim());
+        }, 300);
+    }
+
+    // Create VIP account submissions
+    async function handleAddUser(event) {
+        event.preventDefault();
+        const pwdInput = document.getElementById("newVipPassword").value.trim();
+        const expiryInput = document.getElementById("newVipExpiry").value;
+        const errorText = document.getElementById("addUserError");
+        const submitBtn = document.getElementById("saveUserBtn");
+
+        errorText.classList.add("hidden");
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> စောင့်ပါ...';
+        submitBtn.disabled = true;
+
+        try {
+            const response = await fetch("/api/admin/users", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${adminToken}`
+                },
+                body: JSON.stringify({ password: pwdInput, expiryDate: expiryInput })
+            });
+
+            const data = await response.json();
+            if (response.ok && data.success) {
+                // Clear input form
+                document.getElementById("addUserForm").reset();
+
+                // Hide Modal
+                const modalEl = document.getElementById("addUserModal");
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                modal.hide();
+
+                // Reload users
+                loadVipUsers(document.getElementById("searchBar").value);
+            } else {
+                errorText.innerText = data.error || "အသုံးပြုသူအသစ် ထည့်သွင်း၍မရပါ။";
+                errorText.classList.remove("hidden");
+            }
+        } catch (err) {
+            console.error(err);
+            errorText.innerText = "ဆာဗာချိတ်ဆက်မှု မအောင်မြင်ပါ။";
+            errorText.classList.remove("hidden");
+        } finally {
+            submitBtn.innerText = "အတည်ပြုမည်";
+            submitBtn.disabled = false;
+        }
+    }
+
+    // Modal Trigger for Expiry Extension updates
+    function openEditModal(password, currentExpiry) {
+        document.getElementById("editVipPassword").value = password;
+        document.getElementById("editVipPasswordDisplay").value = password;
+        document.getElementById("editVipExpiry").value = currentExpiry;
+        document.getElementById("editExpiryError").classList.add("hidden");
+
+        const editModal = new bootstrap.Modal(document.getElementById("editExpiryModal"));
+        editModal.show();
+    }
+
+    // Apply Expiry Date modification requests
+    async function handleEditExpiry(event) {
+        event.preventDefault();
+        const password = document.getElementById("editVipPassword").value;
+        const newExpiry = document.getElementById("editVipExpiry").value;
+        const errorText = document.getElementById("editExpiryError");
+        const submitBtn = document.getElementById("updateExpiryBtn");
+
+        errorText.classList.add("hidden");
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> ပြင်ဆင်နေပါသည်...';
+        submitBtn.disabled = true;
+
+        try {
+            const response = await fetch(`/api/admin/users/${encodeURIComponent(password)}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${adminToken}`
+                },
+                body: JSON.stringify({ expiryDate: newExpiry })
+            });
+
+            const data = await response.json();
+            if (response.ok && data.success) {
+                // Hide Modal
+                const modalEl = document.getElementById("editExpiryModal");
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                modal.hide();
+
+                // Reload users
+                loadVipUsers(document.getElementById("searchBar").value);
+            } else {
+                errorText.innerText = data.error || "ပြင်ဆင်မှု မအောင်မြင်ပါ။";
+                errorText.classList.remove("hidden");
+            }
+        } catch (err) {
+            console.error(err);
+            errorText.innerText = "ဆာဗာချိတ်ဆက်မှု မအောင်မြင်ပါ။";
+            errorText.classList.remove("hidden");
+        } finally {
+            submitBtn.innerText = "ပြင်ဆင်မည်";
+            submitBtn.disabled = false;
+        }
+    }
+
+    // Prompt and commit user deletions
+    async function confirmDeleteUser(password) {
+        if (!confirm(`သင်သည် VIP User "${password}" ကို တကယ်ဖျက်လိုပါသလား?`)) {
+            return;
+        }
+
+        const dashboardError = document.getElementById("dashboardError");
+        dashboardError.classList.add("hidden");
+
+        try {
+            const response = await fetch(`/api/admin/users/${encodeURIComponent(password)}`, {
+                method: "DELETE",
+                headers: { "Authorization": `Bearer ${adminToken}` }
+            });
+
+            const data = await response.json();
+            if (response.ok && data.success) {
+                loadVipUsers(document.getElementById("searchBar").value);
+            } else {
+                dashboardError.innerText = data.error || "အသုံးပြုသူ ဖျက်ဆီး၍မရပါ။";
+                dashboardError.classList.remove("hidden");
+            }
+        } catch (err) {
+            console.error(err);
+            dashboardError.innerText = "ဆာဗာချိတ်ဆက်မှု မအောင်မြင်ပါ။";
+            dashboardError.classList.remove("hidden");
+        }
+    }
+</script>
+</body>
+</html>
