@@ -255,9 +255,14 @@
     <div id="adminDashboardSection" class="card glass-card shadow-lg hidden">
         <div class="card-header-admin">
             <h4><i class="fas fa-users-cog"></i> VIP Users Management</h4>
-            <button onclick="handleLogout()" class="btn-logout">
-                <i class="fas fa-sign-out-alt"></i> ထွက်မည်
-            </button>
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn-logout bg-warning text-dark border-0" data-bs-toggle="modal" data-bs-target="#changeCredentialsModal">
+                    <i class="fas fa-user-shield"></i> Admin ပြင်ဆင်ရန်
+                </button>
+                <button onclick="handleLogout()" class="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i> ထွက်မည်
+                </button>
+            </div>
         </div>
         <div class="card-body p-4">
             <!-- Search & Control Header -->
@@ -327,6 +332,35 @@
                         <button type="submit" class="btn btn-primary-admin w-50" id="saveUserBtn">အတည်ပြုမည်</button>
                     </div>
                     <div id="addUserError" class="alert alert-danger mt-3 py-2 text-center small hidden"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: CHANGE ADMIN CREDENTIALS -->
+<div class="modal fade" id="changeCredentialsModal" tabindex="-1" aria-labelledby="changeCredentialsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="changeCredentialsModalLabel"><i class="fas fa-user-shield me-2 text-warning"></i> Admin အကောင့် ပြင်ဆင်ရန်</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="changeCredentialsForm" onsubmit="handleChangeCredentials(event)">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-secondary">Username သစ်</label>
+                        <input type="text" id="newAdminUsername" class="form-control" placeholder="အကောင့်အမည်အသစ်..." required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-bold small text-secondary">Password သစ်</label>
+                        <input type="password" id="newAdminPassword" class="form-control" placeholder="လျှို့ဝှက်နံပါတ်အသစ်..." required>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-secondary w-50" data-bs-dismiss="modal" style="border-radius:12px;">မလုပ်တော့ပါ</button>
+                        <button type="submit" class="btn btn-primary-admin w-50" id="saveCredentialsBtn">ပြင်ဆင်မည်</button>
+                    </div>
+                    <div id="changeCredentialsError" class="alert alert-danger mt-3 py-2 text-center small hidden"></div>
                 </form>
             </div>
         </div>
@@ -622,6 +656,55 @@
                 loadVipUsers(document.getElementById("searchBar").value);
             } else {
                 errorText.innerText = data.error || "ပြင်ဆင်မှု မအောင်မြင်ပါ။";
+                errorText.classList.remove("hidden");
+            }
+        } catch (err) {
+            console.error(err);
+            errorText.innerText = "ဆာဗာချိတ်ဆက်မှု မအောင်မြင်ပါ။";
+            errorText.classList.remove("hidden");
+        } finally {
+            submitBtn.innerText = "ပြင်ဆင်မည်";
+            submitBtn.disabled = false;
+        }
+    }
+
+    // Handle changing admin credentials
+    async function handleChangeCredentials(event) {
+        event.preventDefault();
+        const newUsername = document.getElementById("newAdminUsername").value.trim();
+        const newPassword = document.getElementById("newAdminPassword").value.trim();
+        const errorText = document.getElementById("changeCredentialsError");
+        const submitBtn = document.getElementById("saveCredentialsBtn");
+
+        errorText.classList.add("hidden");
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> ပြင်ဆင်နေပါသည်...';
+        submitBtn.disabled = true;
+
+        try {
+            const response = await fetch("/api/admin/change-credentials", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${adminToken}`
+                },
+                body: JSON.stringify({ newUsername, newPassword })
+            });
+
+            const data = await response.json();
+            if (response.ok && data.success) {
+                // Clear input form
+                document.getElementById("changeCredentialsForm").reset();
+
+                // Hide Modal
+                const modalEl = document.getElementById("changeCredentialsModal");
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                modal.hide();
+
+                // Alert success and logout to force re-login with new credentials
+                alert("Admin အကောင့်အချက်အလက်များ အောင်မြင်စွာ ပြောင်းလဲပြီးပါပြီ။ လော့ဂ်အင် ပြန်ဝင်ပေးပါ။");
+                handleLogout();
+            } else {
+                errorText.innerText = data.error || "အက်ဒမင် အချက်အလက် ပြောင်းလဲ၍မရပါ။";
                 errorText.classList.remove("hidden");
             }
         } catch (err) {
