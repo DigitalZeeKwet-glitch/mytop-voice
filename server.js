@@ -31,15 +31,33 @@ const pool = new Pool({
   ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
 });
 
-// Admin credentials and session JWT configuration
-const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
+// Admin session JWT configuration
 const JWT_SECRET = process.env.JWT_SECRET || 'mytop-voice-admin-secret-key-12345';
 
-// Database Initialization (Schema Creation & Legacy Data Migration)
+// Database Initialization (Schema Creation, Legacy Data Migration & Admin Credentials Seeding)
 async function initDatabase() {
   try {
     console.log('Connecting to PostgreSQL database...');
+
+    // Create the admin_credentials table if it doesn't exist
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS admin_credentials (
+        id SERIAL PRIMARY KEY,
+        username VARCHAR(100) NOT NULL UNIQUE,
+        password VARCHAR(100) NOT NULL
+      )
+    `);
+    console.log('PostgreSQL database check: admin_credentials table is ready.');
+
+    // Seed default credentials if table is empty
+    const adminCheck = await pool.query('SELECT COUNT(*) FROM admin_credentials');
+    if (parseInt(adminCheck.rows[0].count) === 0) {
+      const defaultUser = process.env.ADMIN_USERNAME || 'admin';
+      const defaultPass = process.env.ADMIN_PASSWORD || 'admin123';
+      await pool.query('INSERT INTO admin_credentials (username, password) VALUES ($1, $2)', [defaultUser, defaultPass]);
+      console.log(`Seeded default admin credentials in PostgreSQL: ${defaultUser}`);
+    }
+
     // Create the vip_users table if it doesn't exist
     await pool.query(`
       CREATE TABLE IF NOT EXISTS vip_users (
@@ -238,18 +256,67 @@ app.post('/api/tts', ttsLimiter, async (req, res) => {
 // -----------------------------------------
 
 // A1. Admin Login
-app.post('/api/admin/login', authLimiter, (req, res) => {
+app.post('/api/admin/login', authLimiter, async (req, res) => {
   const { username, password } = req.body;
 
   if (!username || !password) {
     return res.status(400).json({ success: false, error: 'Username and password are required' });
   }
 
-  if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-    const token = jwt.sign({ username }, JWT_SECRET, { expiresIn: '2h' });
-    return res.json({ success: true, token });
-  } else {
+  try {
+    const checkRes = await pool.query('SELECT username, password FROM admin_credentials WHERE username = $1', [username.trim()]);
+    if (checkRes.rowCount > 0) {
+      const dbAdmin = checkRes.rows[0];
+      if (dbAdmin.password === password) {
+        const token = jwt.sign({ username: dbAdmin.username }, JWT_SECRET, { expiresIn: '2h' });
+        return res.json({ success: true, token });
+      }
+    }
     return res.status(401).json({ success: false, error: 'အက်ဒမင် အကောင့်အမည် သို့မဟုတ် လျှို့ဝှက်နံပါတ် မှားယွင်းနေပါသည်။' });
+  } catch (err) {
+    console.error('Error in admin login:', err);
+    return res.status(500).json({ success: false, error: 'ဒေတာဘေ့စ် စစ်ဆေးရာတွင် အမှားအယွင်း ရှိနေပါသည်။' });
+  }
+});
+
+// A1.5. Change Admin Credentials
+app.post('/api/admin/change-credentials', authenticateAdmin, async (req, res) => {
+  const { newUsername, newPassword } = req.body;
+
+  if (!newUsername || newUsername.trim() === '' || !newPassword || newPassword.trim() === '') {
+    return res.status(400).json({ success: false, error: 'Username and password cannot be empty.' });
+  }
+
+  try {
+    // Since we only maintain one admin or a small set, we update the existing admin record.
+    // To be perfectly safe, we'll update based on the token's decoded username.
+    const currentUsername = req.admin.username;
+
+    const result = await pool.query(
+      'UPDATE admin_credentials SET username = $1, password = $2 WHERE username = $3',
+      [newUsername.trim(), newPassword.trim(), currentUsername]
+    );
+
+    if (result.rowCount === 0) {
+      // If for some reason the current user is not found, we insert or update the first admin
+      const countCheck = await pool.query('SELECT id FROM admin_credentials LIMIT 1');
+      if (countCheck.rowCount > 0) {
+        await pool.query(
+          'UPDATE admin_credentials SET username = $1, password = $2 WHERE id = $3',
+          [newUsername.trim(), newPassword.trim(), countCheck.rows[0].id]
+        );
+      } else {
+        await pool.query(
+          'INSERT INTO admin_credentials (username, password) VALUES ($1, $2)',
+          [newUsername.trim(), newPassword.trim()]
+        );
+      }
+    }
+
+    return res.json({ success: true, message: 'Admin credentials permanently updated successfully!' });
+  } catch (err) {
+    console.error('Error changing admin credentials:', err);
+    return res.status(500).json({ success: false, error: 'အက်ဒမင် အကောင့် အချက်အလက်များ ပြောင်းလဲရာတွင် အမှားအယွင်းရှိသည်။' });
   }
 });
 
