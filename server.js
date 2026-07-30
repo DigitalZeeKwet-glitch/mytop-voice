@@ -232,6 +232,9 @@ app.post('/api/tts', ttsLimiter, async (req, res) => {
   pitch = '+0Hz',
   volume = '+0%'
 } = req.body;
+  const fixRate = rate.toString().includes('%') ? rate : `${rate > 0 ? '+' : ''}${rate}%`;
+const fixPitch = pitch.toString().includes('Hz') ? pitch : `${pitch > 0 ? '+' : ''}${pitch}Hz`;
+const fixVolume = volume.toString().includes('%') ? volume : `${volume > 0 ? '+' : ''}${volume}%`;
   if (!text || text.trim() === '') {
     return res.status(400).json({ error: 'စာသား ထည့်သွင်းပေးပါ' });
   }
@@ -240,11 +243,11 @@ app.post('/api/tts', ttsLimiter, async (req, res) => {
     console.log(`Generating TTS for text: "${text.substring(0, 30)}..." using voice ${voice}`);
 
     // Synthesize audio using edge-tts-universal
-    const tts = new EdgeTTS(text, voice);
-
-tts.rate = rate;
-tts.pitch = pitch;
-tts.volume = volume;
+    const tts = new EdgeTTS(text, voice, {
+ rate: fixRate,
+ pitch: fixPitch,
+ volume: fixVolume
+});
    const result = await tts.synthesize();
     const audioBuffer = Buffer.from(await result.audio.arrayBuffer());
 
