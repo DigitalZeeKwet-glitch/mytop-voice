@@ -489,9 +489,14 @@
     // Generate Myanmar Neural TTS audio from backend
     async function generateAudio() {
         const text = textInput.value.trim();
-        const rate = document.getElementById("rate").value;
-const pitch = document.getElementById("pitch").value;
-const volume = document.getElementById("volume").value;
+        const rate = (document.getElementById("rate").value >= 0 ? "+" : "") 
++ document.getElementById("rate").value + "%";
+
+const pitch = (document.getElementById("pitch").value >= 0 ? "+" : "") 
++ document.getElementById("pitch").value + "Hz";
+
+const volume = (document.getElementById("volume").value >= 0 ? "+" : "") 
++ document.getElementById("volume").value + "%";
         const fileName = document.getElementById("fileNameInput").value.trim() || "Myanmar_Voice";
         const genBtn = document.getElementById("genBtn");
         const loadingSection = document.getElementById("loadingSection");
