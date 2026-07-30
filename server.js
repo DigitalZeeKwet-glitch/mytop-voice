@@ -225,8 +225,13 @@ app.post('/api/tts', ttsLimiter, async (req, res) => {
     return res.status(401).json({ error: validation.error || 'Unauthorized VIP access' });
   }
 
-  const { text, voice = 'my-MM-NilarNeural' } = req.body;
-
+  const { 
+  text, 
+  voice = 'my-MM-NilarNeural',
+  rate = '+0%',
+  pitch = '+0Hz',
+  volume = '+0%'
+} = req.body;
   if (!text || text.trim() === '') {
     return res.status(400).json({ error: 'စာသား ထည့်သွင်းပေးပါ' });
   }
@@ -235,8 +240,11 @@ app.post('/api/tts', ttsLimiter, async (req, res) => {
     console.log(`Generating TTS for text: "${text.substring(0, 30)}..." using voice ${voice}`);
 
     // Synthesize audio using edge-tts-universal
-    const tts = new EdgeTTS(text, voice);
-    const result = await tts.synthesize();
+    const tts = new EdgeTTS(text, voice, {
+  rate,
+  pitch,
+  volume
+});   const result = await tts.synthesize();
     const audioBuffer = Buffer.from(await result.audio.arrayBuffer());
 
     // Send the MP3 file directly
