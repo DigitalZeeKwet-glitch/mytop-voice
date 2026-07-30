@@ -334,7 +334,21 @@
                     <small id="charCount" class="text-muted">0 လုံး</small>
                 </div>
             </div>
+<!-- Voice Controls -->
+<div class="mb-3">
+  <label class="form-label small fw-bold">အသံအမြန် (Speed)</label>
+  <input type="range" id="rate" min="-50%" max="+50%" value="+0%" class="form-range">
+</div>
 
+<div class="mb-3">
+  <label class="form-label small fw-bold">အသံအမြင့်အနိမ့် (Pitch)</label>
+  <input type="range" id="pitch" min="-20Hz" max="+20Hz" value="+0Hz" class="form-range">
+</div>
+
+<div class="mb-3">
+  <label class="form-label small fw-bold">အသံအတိုးအကျယ် (Volume)</label>
+  <input type="range" id="volume" min="-50%" max="+50%" value="+0%" class="form-range">
+</div>
             <!-- Generation Button -->
             <button onclick="generateAudio()" id="genBtn" class="btn btn-generate w-100 fw-bold">
                 <i class="fas fa-music me-2"></i> အသံဖိုင် ဖန်တီးမည် (Generate)
