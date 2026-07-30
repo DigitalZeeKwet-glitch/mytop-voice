@@ -240,11 +240,12 @@ app.post('/api/tts', ttsLimiter, async (req, res) => {
     console.log(`Generating TTS for text: "${text.substring(0, 30)}..." using voice ${voice}`);
 
     // Synthesize audio using edge-tts-universal
-    const tts = new EdgeTTS(text, voice, {
-  rate,
-  pitch,
-  volume
-});   const result = await tts.synthesize();
+    const tts = new EdgeTTS(text, voice);
+
+tts.rate = rate;
+tts.pitch = pitch;
+tts.volume = volume;
+   const result = await tts.synthesize();
     const audioBuffer = Buffer.from(await result.audio.arrayBuffer());
 
     // Send the MP3 file directly
